@@ -41,8 +41,8 @@ Cliente HTTP: Axios para fazer a comunicação com a API do backend.
 
 Estilização: CSS puro com foco em responsividade (Flexbox e Media Queries).
 
-⚙️ Como Executar o Projeto Localmente
-Para executar este projeto na sua máquina, siga os passos abaixo.
+⚙️ Guia de Instalação e Execução Local
+Esta seção é destinada a outros desenvolvedores (incluindo o avaliador do projeto) que desejam clonar e executar a aplicação em sua própria máquina.
 
 Pré-requisitos
 Node.js (versão 18 ou superior)
@@ -63,7 +63,8 @@ cd backend
 npm install
 
 # 3. Crie um arquivo .env na raiz da pasta 'backend'
-#    e adicione a sua senha do MySQL, como no exemplo abaixo:
+#    Este passo é crucial, pois o arquivo contém a senha de acesso ao banco de dados.
+#    Adicione o seguinte conteúdo, substituindo pela sua senha local do MySQL:
 #    DB_PASSWORD=sua_senha_secreta_aqui
 
 # 4. Inicie o servidor em modo de desenvolvimento
@@ -88,35 +89,15 @@ A aplicação estará disponível em http://localhost:5173 (ou outra porta indic
 API Endpoints
 A API do backend possui os seguintes endpoints para a gestão de mídias:
 
-Método
+Método              Rota                Descrição
 
-Rota
+GET                 /midias             Retorna a lista de mídias.
 
-Descrição
+POST                /midias             Cria uma nova mídia.
 
-GET
+PUT                 /midias/:id         Atualiza uma mídia existente.
 
-/midias
-
-Retorna a lista de todas as mídias.
-
-POST
-
-/midias
-
-Cria uma nova mídia.
-
-PUT
-
-/midias/:id
-
-Atualiza uma mídia existente.
-
-DELETE
-
-/midias/:id
-
-Apaga uma mídia existente.
+DELETE              /midias/:id         Apaga uma mídia existente.
 
 🔮 Próximos Passos (Entregas Futuras)
 Entrega 2: Integração com IA para transcrição automática de áudio/vídeo.
@@ -125,4 +106,4 @@ Entrega 3: Implementação de busca avançada no conteúdo transcrito.
 
 Entrega 4: Sistema completo de autenticação de usuários (Cadastro e Login).
 
-Desenvolvido por EdCarlos.
+Desenvolvido por Ed Carlos.

@@ -1,0 +1,17 @@
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependências (a pasta mais importante a ser ignorada)
+node_modules/
+
+# Arquivos de ambiente com senhas e segredos
+.env
+.env.local
+
+# Pasta de build do Vite/React
+dist/

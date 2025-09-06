@@ -1,12 +1,128 @@
-# React + Vite
+🚀 Projeto Gerenciador de Mídias (ADS)
+Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma lista de mídias (links de vídeos/áudios) com funcionalidades de CRUD completas, com o objetivo futuro de integrar uma API de Inteligência Artificial para transcrição de conteúdo.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+✅ Funcionalidades (Entrega 1)
+[x] Listar (Read): Visualizar a lista completa de mídias cadastradas.
 
-Currently, two official plugins are available:
+[x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[x] Atualizar (Update): Editar o título e a URL de uma mídia existente.
 
-## Expanding the ESLint configuration
+[x] Apagar (Delete): Remover uma mídia da lista.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+[x] Interface Responsiva: O layout se adapta a diferentes tamanhos de tela, de desktops a celulares.
+
+🛠️ Tecnologias Utilizadas
+O projeto foi construído utilizando uma stack moderna e robusta de JavaScript.
+
+Backend
+Ambiente de Execução: Node.js
+
+Framework: Express.js para a construção da API RESTful.
+
+Banco de Dados: MySQL
+
+Dependências:
+
+mysql2: Driver para a conexão com o banco de dados.
+
+cors: Para habilitar a comunicação entre o frontend e o backend.
+
+dotenv: Para gerenciar as variáveis de ambiente de forma segura.
+
+nodemon: Para reiniciar o servidor automaticamente durante o desenvolvimento.
+
+Frontend
+Biblioteca: React para a construção da interface de usuário.
+
+Ferramenta de Build: Vite para um desenvolvimento rápido e otimizado.
+
+Cliente HTTP: Axios para fazer a comunicação com a API do backend.
+
+Estilização: CSS puro com foco em responsividade (Flexbox e Media Queries).
+
+⚙️ Como Executar o Projeto Localmente
+Para executar este projeto na sua máquina, siga os passos abaixo.
+
+Pré-requisitos
+Node.js (versão 18 ou superior)
+
+[link suspeito removido]
+
+1. Clonar o Repositório
+git clone [https://github.com/Edcarlosnew/projeto-ads-midias.git](https://github.com/Edcarlosnew/projeto-ads-midias.git)
+cd projeto-ads-midias
+
+2. Configuração do Backend
+Primeiro, configure e inicie o servidor do backend.
+
+# 1. Navegue para a pasta do backend
+cd backend
+
+# 2. Instale as dependências
+npm install
+
+# 3. Crie um arquivo .env na raiz da pasta 'backend'
+#    e adicione a sua senha do MySQL, como no exemplo abaixo:
+#    DB_PASSWORD=sua_senha_secreta_aqui
+
+# 4. Inicie o servidor em modo de desenvolvimento
+npm run dev
+
+O servidor estará rodando em http://localhost:3001.
+
+3. Configuração do Frontend
+Com o backend rodando, inicie a aplicação React em outro terminal.
+
+# 1. Navegue para a pasta do frontend (a partir da raiz do projeto)
+cd frontend
+
+# 2. Instale as dependências
+npm install
+
+# 3. Inicie o servidor de desenvolvimento
+npm run dev
+
+A aplicação estará disponível em http://localhost:5173 (ou outra porta indicada pelo Vite).
+
+API Endpoints
+A API do backend possui os seguintes endpoints para a gestão de mídias:
+
+Método
+
+Rota
+
+Descrição
+
+GET
+
+/midias
+
+Retorna a lista de todas as mídias.
+
+POST
+
+/midias
+
+Cria uma nova mídia.
+
+PUT
+
+/midias/:id
+
+Atualiza uma mídia existente.
+
+DELETE
+
+/midias/:id
+
+Apaga uma mídia existente.
+
+🔮 Próximos Passos (Entregas Futuras)
+Entrega 2: Integração com IA para transcrição automática de áudio/vídeo.
+
+Entrega 3: Implementação de busca avançada no conteúdo transcrito.
+
+Entrega 4: Sistema completo de autenticação de usuários (Cadastro e Login).
+
+Desenvolvido por EdCarlos.

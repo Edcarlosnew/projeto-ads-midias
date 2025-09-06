@@ -62,12 +62,7 @@ cd backend
 # 2. Instale as dependências
 npm install
 
-# 3. Crie um arquivo .env na raiz da pasta 'backend'
-#    Este passo é crucial, pois o arquivo contém a senha de acesso ao banco de dados.
-#    Adicione o seguinte conteúdo, substituindo pela sua senha local do MySQL:
-#    DB_PASSWORD=sua_senha_secreta_aqui
-
-# 4. Inicie o servidor em modo de desenvolvimento
+# 3. Inicie o servidor em modo de desenvolvimento
 npm run dev
 
 O servidor estará rodando em http://localhost:3001.
@@ -89,15 +84,35 @@ A aplicação estará disponível em http://localhost:5173 (ou outra porta indic
 API Endpoints
 A API do backend possui os seguintes endpoints para a gestão de mídias:
 
-Método              Rota                Descrição
+Método
 
-GET                 /midias             Retorna a lista de mídias.
+Rota
 
-POST                /midias             Cria uma nova mídia.
+Descrição
 
-PUT                 /midias/:id         Atualiza uma mídia existente.
+GET
 
-DELETE              /midias/:id         Apaga uma mídia existente.
+/midias
+
+Retorna a lista de mídias.
+
+POST
+
+/midias
+
+Cria uma nova mídia.
+
+PUT
+
+/midias/:id
+
+Atualiza uma mídia existente.
+
+DELETE
+
+/midias/:id
+
+Apaga uma mídia existente.
 
 🔮 Próximos Passos (Entregas Futuras)
 Entrega 2: Integração com IA para transcrição automática de áudio/vídeo.
@@ -106,4 +121,4 @@ Entrega 3: Implementação de busca avançada no conteúdo transcrito.
 
 Entrega 4: Sistema completo de autenticação de usuários (Cadastro e Login).
 
-Desenvolvido por Ed Carlos.
+Desenvolvido por EdCarlos.

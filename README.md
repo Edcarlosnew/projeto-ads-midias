@@ -84,35 +84,15 @@ A aplicação estará disponível em http://localhost:5173 (ou outra porta indic
 API Endpoints
 A API do backend possui os seguintes endpoints para a gestão de mídias:
 
-Método
+Método          Rota            Descrição
 
-Rota
+GET             /midias         Retorna a lista de mídias.
 
-Descrição
+POST            /midias         Cria uma nova mídia.
 
-GET
+PUT             /midias/:id     Atualiza uma mídia existente.
 
-/midias
-
-Retorna a lista de mídias.
-
-POST
-
-/midias
-
-Cria uma nova mídia.
-
-PUT
-
-/midias/:id
-
-Atualiza uma mídia existente.
-
-DELETE
-
-/midias/:id
-
-Apaga uma mídia existente.
+DELETE          /midias/:id     Apaga uma mídia existente.
 
 🔮 Próximos Passos (Entregas Futuras)
 Entrega 2: Integração com IA para transcrição automática de áudio/vídeo.

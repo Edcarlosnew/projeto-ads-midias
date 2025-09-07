@@ -4,7 +4,7 @@ body {
   background-color: #f0f2f5;
   color: #333;
   margin: 0;
-  /* NOVO: Centraliza o conteúdo principal no meio da tela */
+  /* Centraliza o conteúdo principal no meio da tela */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,8 +13,8 @@ body {
 
 .App {
   width: 100%; /* Ocupa a largura total disponível */
-  max-width: 800px;
-  margin: 20px; /* Adiciona uma margem para não colar nas bordas */
+  max-width: 1000px;
+  margin: 0px; /* Adiciona uma margem para não colar nas bordas */
   padding: 20px 40px;
   background-color: #ffffff;
   border-radius: 8px;
@@ -131,7 +131,7 @@ li button:hover {
   background-color: #3498db;
 }
 
-/* --- NOVO: Media Query para Responsividade --- */
+/* --- Media Query para Responsividade --- */
 @media (max-width: 600px) {
   body {
     /* Em telas pequenas, o alinhamento no topo é melhor */
@@ -166,3 +166,4 @@ li button:hover {
     font-size: 1.4rem;
   }
 }
+

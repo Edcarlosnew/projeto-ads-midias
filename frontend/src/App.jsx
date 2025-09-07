@@ -59,12 +59,15 @@ function App() {
         <h2>Minha Lista de Mídias</h2>
         <ul>
           {midias.map(midia => (
-            <li key={midia.id}> 
-    <strong>{midia.titulo}</strong>: <span>{midia.url_midia}</span>
-    <div>
-        <button className="btn-delete" onClick={() => handleDelete(midia.id)}>Apagar</button>
-        <button className="btn-edit" onClick={() => handleEdit(midia)}>Editar</button>
-    </div>
+            <li key={midia.id}>
+  <div className="midia-info">
+    <strong>{midia.titulo}</strong>
+    <span>{midia.url_midia}</span>
+  </div>
+  <div className="midia-actions">
+    <button className="btn-delete" onClick={() => handleDelete(midia.id)}>Apagar</button>
+    <button className="btn-edit" onClick={() => handleEdit(midia)}>Editar</button>
+  </div>
 </li>
           ))}
         </ul>

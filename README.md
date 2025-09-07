@@ -100,13 +100,13 @@ A API do backend possui os seguintes endpoints para a gestão de mídias:
 
 Método==================Rota====================Descrição
 
-GET=====================/midias=================Retorna a lista de mídias.
+GET====================/midias=================Retorna a lista de mídias.
 
-POST====================/midias=================Cria uma nova mídia.
+POST===================/midias=================Cria uma nova mídia.
 
-PUT=====================/midias/:id=============Atualiza uma mídia existente.
+PUT====================/midias/:id===============Atualiza uma mídia existente.
 
-DELETE==================/midias/:id=============Apaga uma mídia existente.
+DELETE=================/midias/:id================Apaga uma mídia existente.
 
 🔮 Próximos Passos (Entregas Futuras)
 Entrega 2: Integração com IA para transcrição automática de áudio/vídeo.
@@ -115,4 +115,4 @@ Entrega 3: Implementação de busca avançada no conteúdo transcrito.
 
 Entrega 4: Sistema completo de autenticação de usuários (Cadastro e Login).
 
-Desenvolvido por EdCarlos Almeida.
+Desenvolvido por Edcarlos Almeida.

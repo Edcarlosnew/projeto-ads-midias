@@ -2,6 +2,8 @@
 Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma lista de mídias (links de vídeos/áudios) com funcionalidades de CRUD completas, com o objetivo futuro de integrar uma API de Inteligência Artificial para transcrição de conteúdo.
 
 ✅ Funcionalidades (Entrega 1)
+
+
 [x] Listar (Read): Visualizar a lista completa de mídias cadastradas.
 
 [x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.

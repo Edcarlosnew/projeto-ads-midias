@@ -13,8 +13,8 @@ body {
 
 .App {
   width: 100%; /* Ocupa a largura total disponível */
-  max-width: 1000px;
-  margin: 0px; /* Adiciona uma margem para não colar nas bordas */
+  max-width: 800px;
+  margin: 20px; /* Adiciona uma margem para não colar nas bordas */
   padding: 20px 40px;
   background-color: #ffffff;
   border-radius: 8px;
@@ -131,7 +131,7 @@ li button:hover {
   background-color: #3498db;
 }
 
-/* --- Media Query para Responsividade --- */
+/* Media Query para Responsividade --- */
 @media (max-width: 600px) {
   body {
     /* Em telas pequenas, o alinhamento no topo é melhor */
@@ -166,4 +166,3 @@ li button:hover {
     font-size: 1.4rem;
   }
 }
-

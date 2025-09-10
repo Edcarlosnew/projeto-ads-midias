@@ -26,7 +26,7 @@ app.get('/midias', async (req, res) => {
   }
 });
 
-// ROTA POST (Create): Criar uma nova mídia
+// ROTA POST (Create): Criar uma nova mídias
 app.post('/midias', async (req, res) => {
   const { titulo, url_midia } = req.body;
   const usuarioId = 1; 
@@ -39,7 +39,6 @@ app.post('/midias', async (req, res) => {
   }
 });
 
-// --- ROTA NOVA ABAIXO ---
 // ROTA PUT (Update): Atualizar uma mídia existente
 app.put('/midias/:id', async (req, res) => {
   // Pega o ID da mídia da URL (ex: /midias/1)
@@ -59,7 +58,6 @@ app.put('/midias/:id', async (req, res) => {
   }
 });
 
-// --- ROTA NOVA ABAIXO ---
 // ROTA DELETE (Delete): Apagar uma mídia existente
 app.delete('/midias/:id', async (req, res) => {
   // Pega o ID da mídia da URL

@@ -5,7 +5,6 @@ import MediaForm from './MediaForm';
 
 function App() {
   const [midias, setMidias] = useState([]);
-  // --- ESTADO NOVO ABAIXO ---
   // Este estado vai guardar os dados da mídia que estamos editando.
   // Começa como 'nulo', significando que não estamos editando nada.
   const [editingMidia, setEditingMidia] = useState(null);
@@ -37,7 +36,6 @@ function App() {
     }
   };
 
-  // --- FUNÇÃO NOVA ABAIXO ---
   // Esta função é chamada quando clicamos no botão "Editar" de um item.
   // Ela pega os dados da mídia clicada e os coloca no nosso estado 'editingMidia'.
   const handleEdit = (midia) => {

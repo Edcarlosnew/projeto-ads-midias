@@ -1,3 +1,92 @@
+.App {
+  width: 100%;
+  max-width: 800px;
+  padding: 20px 40px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+h1, h2 { text-align: center; color: #1c1e21; }
+hr { border: 0; border-top: 1px solid #dddfe2; margin: 30px 0; }
+form { display: flex; flex-direction: column; gap: 15px; }
+form div { display: flex; flex-direction: column; }
+form label { margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+form input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+form input:focus { outline: none; border-color: #1877f2; box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2); }
+form button { padding: 12px 15px; border-radius: 6px; border: none; background-color: #1877f2; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+ul { list-style: none; padding: 0; }
+li { display: flex; flex-direction: column; /* Alterado para coluna para acomodar a transcrição */ align-items: stretch; /* Alinha itens para preencher */ padding: 15px; border-bottom: 1px solid #eee; gap: 10px; /* Reduzido o gap */ }
+
+.midia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.midia-info { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; word-break: break-all; }
+.midia-actions { display: flex; gap: 8px; flex-shrink: 0; }
+li button { padding: 6px 12px; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; }
+
+.btn-delete { background-color: #e74c3c; }
+.btn-edit { background-color: #3498db; }
+.btn-transcribe { background-color: #2ecc71; } /* Novo estilo para o botão de transcrever */
+
+.transcricao-texto { /* Novo estilo para o texto da transcrição */
+  background-color: #f8f9fa;
+  border-left: 4px solid #1877f2;
+  padding: 10px 15px;
+  margin-top: 10px;
+  font-style: italic;
+  color: #333;
+  white-space: pre-wrap; /* Preserva quebras de linha */
+}
+
+/* Novo: Indicador de Carregamento */
+.loading-indicator {
+  color: #999;
+  font-style: italic;
+  animation: blink-animation 1.5s infinite;
+}
+
+@keyframes blink-animation {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .App { padding: 20px; margin: 10px 0; box-shadow: none; }
+  .midia-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .midia-actions { width: 100%; justify-content: flex-end; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

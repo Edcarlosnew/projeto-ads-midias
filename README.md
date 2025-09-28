@@ -70,15 +70,19 @@ Ferramenta de Build: Vite para um desenvolvimento rápido e otimizado.
 
 Cliente HTTP: Axios para fazer a comunicação com a API do backend.
 
-Estilização: CSS puro com foco em responsividade (Flexbox e Media Queries).
+Player de Vídeo: react-lite-youtube-embed para uma reprodução leve e eficiente.
+
+Estilização: CSS puro com foco em responsividade (Flexbox e CSS Grid).
 
 #
 
 ⚙️ Guia de Instalação e Execução Local
+#
 Esta seção é destinada a outros desenvolvedores (incluindo o avaliador do projeto) que desejam clonar e executar a aplicação em sua própria máquina.
-
+#
 Pré-requisitos
 Node.js (versão 18 ou superior)
+MySQL Server
 
 
 1. Clonar o Repositório

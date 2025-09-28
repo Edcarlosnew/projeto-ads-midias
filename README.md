@@ -38,8 +38,7 @@ A aplicação evoluiu da sua versão inicial de CRUD para uma interface de mídi
 
 🛠️ Tecnologias Utilizadas
 O projeto foi construído utilizando uma stack moderna e robusta de JavaScript.
-
-
+#
 Backend
 #
 Ambiente de Execução: Node.js

@@ -22,6 +22,7 @@ function App() {
   const [editingMidia, setEditingMidia] = useState(null);
   const [selectedMidia, setSelectedMidia] = useState(null);
   const [transcribingId, setTranscribingId] = useState(null);
+  const [visibleTranscriptionId, setVisibleTranscriptionId] = useState(null);
 
   const fetchMidias = async () => {
     try {
@@ -51,50 +52,57 @@ function App() {
     setEditingMidia(midia); 
   };
 
-  const handleTranscribe = async (e, id) => {
+  const handleTranscribeClick = async (e, midia) => {
     e.stopPropagation();
-    setTranscribingId(id);
-    try {
-      await axios.post(`http://localhost:3001/midias/${id}/transcrever`);
-      const response = await axios.get('http://localhost:3001/midias');
-      setMidias(response.data);
-      if (selectedMidia && selectedMidia.id === id) {
-        const updatedMidia = response.data.find(m => m.id === id);
-        setSelectedMidia(updatedMidia);
+    if (midia.texto_transcricao) {
+      setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
+    } else {
+      setTranscribingId(midia.id);
+      try {
+        await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`);
+        const response = await axios.get('http://localhost:3001/midias');
+        setMidias(response.data);
+        const updatedMidia = response.data.find(m => m.id === midia.id);
+        if (selectedMidia && selectedMidia.id === midia.id) {
+          setSelectedMidia(updatedMidia);
+        }
+        setVisibleTranscriptionId(midia.id);
+      } catch (error) { 
+        alert("Falha ao transcrever mídia."); 
+        console.error("Erro ao transcrever mídia:", error);
+      } finally { 
+        setTranscribingId(null); 
       }
-    } catch (error) { alert("Falha ao transcrever mídia."); console.error("Erro ao transcrever mídia:", error); } 
-    finally { setTranscribingId(null); }
+    }
   };
   
   const handleSelectMidia = (midia) => { 
     setEditingMidia(null); 
     setSelectedMidia(midia); 
+    setVisibleTranscriptionId(null);
   };
 
   return (
     <div className="app-container">
       <main className="main-content">
         {selectedMidia ? (
-          <>
-            <div className="player-container">
-              <LiteYouTubeEmbed
-                id={getYouTubeID(selectedMidia.url_midia)}
-                title={selectedMidia.titulo}
-              />
-            </div>
-            
-            <h2>{selectedMidia.titulo}</h2>
-
-            {selectedMidia.texto_transcricao && (
+          <div className="player-container">
+            <LiteYouTubeEmbed
+              key={selectedMidia.id}
+              id={getYouTubeID(selectedMidia.url_midia)}
+              title={selectedMidia.titulo}
+            />
+            {visibleTranscriptionId === selectedMidia.id && selectedMidia.texto_transcricao && (
               <div className="transcription-area">
-                <h3>Transcrição:</h3>
                 <p>{selectedMidia.texto_transcricao}</p>
               </div>
             )}
-            {transcribingId === selectedMidia.id && (<p>A transcrever áudio...</p>)}
-          </>
+            {transcribingId === selectedMidia.id && (
+              <div className="transcription-status">A transcrever áudio...</div>
+            )}
+          </div>
         ) : (
-          <div>
+          <div className="placeholder-text">
             <h2>Player de Mídia</h2>
             <p>Selecione um item da playlist para reproduzir.</p>
           </div>
@@ -119,11 +127,9 @@ function App() {
               <div className="media-item-actions">
                 <button onClick={(e) => handleEdit(e, midia)}>Editar</button>
                 <button onClick={(e) => handleDelete(e, midia.id)} className="btn-delete">Apagar</button>
-                {!midia.texto_transcricao && (
-                  <button onClick={(e) => handleTranscribe(e, midia.id)} className="btn-transcribe">
-                    {transcribingId === midia.id ? '...' : 'Transcrever'}
-                  </button>
-                )}
+                <button onClick={(e) => handleTranscribeClick(e, midia)} className="btn-transcribe">
+                  {midia.texto_transcricao ? `Transcrição/${visibleTranscriptionId === midia.id ? 'Off' : 'On'}` : 'Transcrever'}
+                </button>
               </div>
             </li>
           ))}

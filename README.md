@@ -1,13 +1,16 @@
 
 🚀 Projeto Gerenciador de Mídias (ADS)
-Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma lista de mídias (links de vídeos/áudios) com funcionalidades de CRUD completas, com o objetivo futuro de integrar uma API de Inteligência Artificial para transcrição de conteúdo.
+Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma playlist de mídias, reproduzir vídeos e obter transcrições de áudio.
 
 #
 
-✅ Funcionalidades (Entrega 1)
+✅ Status Atual do Projeto: Fase 2 Concluída
+A aplicação evoluiu da sua versão inicial de CRUD para uma interface de mídia interativa e sofisticada, com a funcionalidade de transcrição (simulada) já implementada.
 
+✨ Funcionalidades
+[Fase 1] Gestão Completa de Mídias (CRUD):
 
-[x] Listar (Read): Visualizar a lista completa de mídias cadastradas.
+[x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.
 
 [x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
 
@@ -15,7 +18,21 @@ Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desen
 
 [x] Apagar (Delete): Remover uma mídia da lista.
 
-[x] Interface Responsiva: O layout se adapta a diferentes tamanhos de tela, de desktops a celulares.
+#
+
+[Fase 2] Interface Interativa Estilo YouTube:
+
+[x] Layout Profissional: Interface com player de vídeo principal e playlist na barra lateral.
+
+[x] Seleção de Mídia: Clicar num item da playlist carrega-o imediatamente no player.
+
+[x] Player de Vídeo Integrado: Reprodução de vídeos diretamente de URLs do YouTube.
+
+[Fase 2] Transcrição de Áudio (Simulada):
+
+[x] Funcionalidade de Transcrição: Botão para solicitar a transcrição de uma mídia.
+
+[x] Exibição em Overlay: A transcrição aparece por cima do vídeo e pode ser mostrada/ocultada.
 
 #
 

@@ -63,6 +63,7 @@ nodemon: Para reiniciar o servidor automaticamente durante o desenvolvimento.
 #
 
 Frontend
+#
 Biblioteca: React para a construção da interface de usuário.
 
 Ferramenta de Build: Vite para um desenvolvimento rápido e otimizado.

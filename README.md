@@ -1,13 +1,16 @@
 
 🚀 Projeto Gerenciador de Mídias (ADS)
-Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma lista de mídias (links de vídeos/áudios) com funcionalidades de CRUD completas, com o objetivo futuro de integrar uma API de Inteligência Artificial para transcrição de conteúdo.
+Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma playlist de mídias, reproduzir vídeos e obter transcrições de áudio.
 
 #
 
-✅ Funcionalidades (Entrega 1)
+✅ Status Atual do Projeto: Fase 2 Concluída
+A aplicação evoluiu da sua versão inicial de CRUD para uma interface de mídia interativa e sofisticada, com a funcionalidade de transcrição (simulada) já implementada.
 
+✨ Funcionalidades
+[Fase 1] Gestão Completa de Mídias (CRUD):
 
-[x] Listar (Read): Visualizar a lista completa de mídias cadastradas.
+[x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.
 
 [x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
 
@@ -15,15 +18,41 @@ Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desen
 
 [x] Apagar (Delete): Remover uma mídia da lista.
 
-[x] Interface Responsiva: O layout se adapta a diferentes tamanhos de tela, de desktops a celulares.
+#
+
+[Fase 2] Interface Interativa Estilo YouTube:
+
+[x] Layout Profissional: Interface com player de vídeo principal e playlist na barra lateral.
+
+[x] Seleção de Mídia: Clicar num item da playlist carrega-o imediatamente no player.
+
+[x] Player de Vídeo Integrado: Reprodução de vídeos diretamente de URLs do YouTube.
+
+[Fase 2] Transcrição de Áudio (Simulada):
+
+[x] Funcionalidade de Transcrição: Botão para solicitar a transcrição de uma mídia.
+
+[x] Exibição em Overlay: A transcrição aparece por cima do vídeo e pode ser mostrada/ocultada.
+
+#
+
+[Fase 3] Busca Avançada e Melhoria da Interface
+
+[x] Busca na Transcrição (Client-Side): Implementada uma barra de busca no frontend que filtra a playlist em tempo real. O utilizador pode agora pesquisar por palavras-chave (ex: "Roxette", "George Michael") e a lista é atualizada instantaneamente, mostrando apenas as mídias cuja transcrição contém o texto procurado.
+
+[x] Simulação Dinâmica no Backend: O endpoint de transcrição simulada foi atualizado. Ele agora lê o título da mídia no banco de dados e usa uma lógica switch para fornecer um texto de transcrição único para cada vídeo, permitindo testes de busca realistas.
+
+[x] Melhoria de UI/UX (Thumbnails): A playlist foi redesenhada para incluir as thumbnails (imagens) dos vídeos do YouTube, criando uma interface muito mais profissional e visualmente apelativa.
+
+[x] Melhoria de UX (Busca): Adicionada uma mensagem de "Nenhum resultado encontrado" e a lógica para limpar o player de vídeo caso a mídia selecionada seja filtrada pela busca.
 
 #
 
 🛠️ Tecnologias Utilizadas
 O projeto foi construído utilizando uma stack moderna e robusta de JavaScript.
-
-
+#
 Backend
+#
 Ambiente de Execução: Node.js
 
 Framework: Express.js para a construção da API RESTful.
@@ -46,21 +75,26 @@ nodemon: Para reiniciar o servidor automaticamente durante o desenvolvimento.
 #
 
 Frontend
+#
 Biblioteca: React para a construção da interface de usuário.
 
 Ferramenta de Build: Vite para um desenvolvimento rápido e otimizado.
 
 Cliente HTTP: Axios para fazer a comunicação com a API do backend.
 
-Estilização: CSS puro com foco em responsividade (Flexbox e Media Queries).
+Player de Vídeo: react-lite-youtube-embed para uma reprodução leve e eficiente.
+
+Estilização: CSS puro com foco em responsividade (Flexbox e CSS Grid).
 
 #
 
 ⚙️ Guia de Instalação e Execução Local
+#
 Esta seção é destinada a outros desenvolvedores (incluindo o avaliador do projeto) que desejam clonar e executar a aplicação em sua própria máquina.
-
+#
 Pré-requisitos
 Node.js (versão 18 ou superior)
+MySQL Server
 
 
 1. Clonar o Repositório

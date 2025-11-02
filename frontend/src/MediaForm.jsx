@@ -29,6 +29,9 @@ function MediaForm({ onMidiaAdded, midiaToEdit, onMidiaUpdated }) {
         // SE NÃO, fazemos um POST para criar um novo item
         await axios.post('http://localhost:3001/midias', midiaData);
         onMidiaAdded(); // AGORA NO SÍTIO CERTO: Avisa o App.jsx que terminamos de adicionar
+        // Limpa os campos do formulário após o envio bem-sucedido
+        setTitulo('');
+        setUrl('');
       }
     } catch (error) {
       console.error("Erro ao salvar mídia:", error);

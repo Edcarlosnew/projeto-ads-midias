@@ -69,30 +69,44 @@ function App() {
   };
 
   const handleTranscribeClick = async (e, midia) => {
-    e.stopPropagation();
+  e.stopPropagation();
 
-    if (midia.texto_transcricao) {
-      setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
-    } else {
-      setTranscribingId(midia.id);
-      try {
-        await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`);
-        const response = await axios.get('http://localhost:3001/midias');
-        setMidias(response.data);
-        
-        const updatedMidia = response.data.find(m => m.id === midia.id);
-        if (selectedMidia && selectedMidia.id === midia.id) {
-          setSelectedMidia(updatedMidia);
-        }
-        setVisibleTranscriptionId(midia.id);
-      } catch (error) { 
-        alert("Falha ao transcrever mídia."); 
-        console.error("Erro ao transcrever mídia:", error);
-      } finally { 
-        setTranscribingId(null); 
+  // 1. Se o texto já existe, apenas mostra/esconde (lógica antiga)
+  if (midia.texto_transcricao) {
+    setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
+  } else {
+    // 2. Se não existe, executa a chamada POST
+    setTranscribingId(midia.id);
+    try {
+      // 3. Chama o POST e (IMPORTANTE) guarda a resposta
+      const response = await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`);
+      
+      // 4. Pega a nova transcrição que o backend enviou na resposta
+      // (Baseado no nosso index.js: res.json({ ..., transcription: textoTranscribed }))
+      const newTranscription = response.data.transcription;
+
+      // 5. Atualiza o estado 'midias' localmente (sem fazer um novo GET)
+      const updatedMidiasList = midias.map(m => 
+        m.id === midia.id 
+          ? { ...m, texto_transcricao: newTranscription } // Atualiza só a mídia clicada
+          : m // Retorna todas as outras mídias como estão
+      );
+      setMidias(updatedMidiasList);
+      
+      // 6. Atualiza o 'selectedMidia' (se for o que está a ser visto)
+      if (selectedMidia && selectedMidia.id === midia.id) {
+        setSelectedMidia(prev => ({ ...prev, texto_transcricao: newTranscription }));
       }
+      setVisibleTranscriptionId(midia.id); // Mostra a transcrição
+
+    } catch (error) { 
+      alert("Falha ao transcrever mídia."); 
+      console.error("Erro ao transcrever mídia:", error);
+    } finally { 
+      setTranscribingId(null); 
     }
-  };
+  }
+};
   
   const handleSelectMidia = (midia) => { 
     setEditingMidia(null); 

@@ -1,237 +1,240 @@
-/* eslint-disable no-irregular-whitespace */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import './App.css'; // Importa o seu ficheiro CSS
-import MediaForm from './MediaForm'; // Importa o seu componente de formulário
-import LiteYouTubeEmbed from 'react-lite-youtube-embed'; // A sua biblioteca original
-import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'; // CSS da biblioteca
+import LiteYouTubeEmbed from 'react-lite-youtube-embed';
+import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
+import './App.css';
 
-// Função para extrair o ID do URL do YouTube
+// Importamos o Contexto e a Tela de Login
+import { AuthContext } from "./AuthContext.jsx";
+import Login from "./Login.jsx";
+import MediaForm from './MediaForm';
+
+// Função auxiliar para pegar ID do YouTube
 const getYouTubeID = (url) => {
-  if (!url) return null;
-  try {
-    const urlObj = new URL(url);
-    const vParam = urlObj.searchParams.get('v');
-    if (vParam) return vParam;
-    
-    // Lógica alternativa para URLs curtas (ex: youtu.be/...)
-    const pathParts = urlObj.pathname.split('/');
-    return pathParts[pathParts.length - 1];
-  } catch (error) {
-    console.error("URL do YouTube inválida:", url, error);
-    return null;
-  }
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
 };
 
 function App() {
-  const [midias, setMidias] = useState([]);
-  const [editingMidia, setEditingMidia] = useState(null);
-  const [selectedMidia, setSelectedMidia] = useState(null);
-  const [transcribingId, setTranscribingId] = useState(null);
-  const [visibleTranscriptionId, setVisibleTranscriptionId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [backendStatus, setBackendStatus] = useState('pending'); // 'pending', 'online', 'offline'
+  // 1. Hooks (Tudo isso tem que ficar no topo, antes de qualquer return)
+  const { user, logout } = useContext(AuthContext);
 
-  const fetchMidias = async () => {
-    setBackendStatus('pending'); // Mostra 'A ligar...'
-    try {
-      const response = await axios.get('http://localhost:3001/midias');
-      setMidias(response.data);
-      setBackendStatus('online'); // Sucesso
-    } catch (error) { 
-      console.error("Erro ao buscar mídias:", error); 
-      setBackendStatus('offline'); // Erro (Network Error)
-    }
-  };
-  
-  useEffect(() => { fetchMidias(); }, []);
+  const [midias, setMidias] = useState([]);
+  const [editingMidia, setEditingMidia] = useState(null);
+  const [selectedMidia, setSelectedMidia] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [visibleTranscriptionId, setVisibleTranscriptionId] = useState(null);
+  const [transcribingId, setTranscribingId] = useState(null);
 
-  const handleMidiaAdded = () => { fetchMidias(); };
-  const handleMidiaUpdated = () => { setEditingMidia(null); fetchMidias(); };
-  
-  const handleDelete = async (e, id) => {
-    e.stopPropagation();
-    if (window.confirm("Tem a certeza que deseja apagar esta mídia?")) {
-      try {
-        await axios.delete(`http://localhost:3001/midias/${id}`);
-        fetchMidias();
-        if (selectedMidia && selectedMidia.id === id) setSelectedMidia(null);
-      } catch (error) { 
-        alert("Falha ao apagar mídia.");
-        console.error("Erro ao apagar mídia:", error); 
+  // Função de busca (movida para fora do useEffect para ser reutilizada)
+  const fetchMidias = async () => {
+    // Se não tiver usuário, nem tenta buscar
+    if (!user) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
+      const response = await axios.get('http://localhost:3001/midias', config);
+      setMidias(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar mídias:", error);
+      if (error.response && error.response.status === 401) {
+        logout();
       }
-    }
-  };
+    }
+  };
 
-  const handleEdit = (e, midia) => { 
-    e.stopPropagation(); 
-    setEditingMidia(midia); 
-  };
+  // useEffect roda sempre que o 'user' muda
+  useEffect(() => {
+    if (user) {
+      fetchMidias();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
-  const handleTranscribeClick = async (e, midia) => {
-  e.stopPropagation();
+  const handleMidiaAdded = () => { fetchMidias(); };
 
-  // 1. Se o texto já existe, apenas mostra/esconde (lógica antiga)
-  if (midia.texto_transcricao) {
-    setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
-  } else {
-    // 2. Se não existe, executa a chamada POST
-    setTranscribingId(midia.id);
-    try {
-      // 3. Chama o POST e (IMPORTANTE) guarda a resposta
-      const response = await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`);
-      
-      // 4. Pega a nova transcrição que o backend enviou na resposta
-      // (Baseado no nosso index.js: res.json({ ..., transcription: textoTranscribed }))
-      const newTranscription = response.data.transcription;
+  const handleDelete = async (id) => {
+    if(!confirm("Tem certeza que deseja apagar?")) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/midias/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchMidias();
+      if (selectedMidia && selectedMidia.id === id) {
+        setSelectedMidia(null);
+      }
+    } catch (error) {
+      console.error(error); // Usando o erro para sumir o warning
+      alert("Falha ao apagar mídia.");
+    }
+  };
 
-      // 5. Atualiza o estado 'midias' localmente (sem fazer um novo GET)
-      const updatedMidiasList = midias.map(m => 
-        m.id === midia.id 
-          ? { ...m, texto_transcricao: newTranscription } // Atualiza só a mídia clicada
-          : m // Retorna todas as outras mídias como estão
+  const handleEdit = (midia) => { setEditingMidia(midia); };
+
+  const handleSelectMidia = (midia) => {
+    setSelectedMidia(midia);
+    setVisibleTranscriptionId(null);
+  };
+
+  const handleTranscribeClick = async (e, midia) => {
+    e.stopPropagation();
+    if (midia.texto_transcricao) {
+      setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
+    } else {
+      setTranscribingId(midia.id);
+      try {
+        const token = localStorage.getItem('token');
+        await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        await fetchMidias();
+        setTranscribingId(null);
+        setVisibleTranscriptionId(midia.id);
+      } catch (error) {
+        console.error("Erro na transcrição:", error);
+        alert("Erro ao transcrever.");
+        setTranscribingId(null);
+      }
+    }
+  };
+
+  // Lógica de filtro
+  const midiasParaExibir = searchTerm.trim() === ''
+    ? midias
+    : midias.filter(midia =>
+        midia.texto_transcricao &&
+        midia.texto_transcricao.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setMidias(updatedMidiasList);
-      
-      // 6. Atualiza o 'selectedMidia' (se for o que está a ser visto)
-      if (selectedMidia && selectedMidia.id === midia.id) {
-        setSelectedMidia(prev => ({ ...prev, texto_transcricao: newTranscription }));
-      }
-      setVisibleTranscriptionId(midia.id); // Mostra a transcrição
 
-    } catch (error) { 
-      alert("Falha ao transcrever mídia."); 
-      console.error("Erro ao transcrever mídia:", error);
-    } finally { 
-      setTranscribingId(null); 
-    }
-  }
-};
-  
-  const handleSelectMidia = (midia) => { 
-    setEditingMidia(null); 
-    setSelectedMidia(midia); 
-    setVisibleTranscriptionId(null);
-  };
-
-  // Lógica de filtragem 
-  const midiasParaExibir = searchTerm.trim() === ''
-    ? midias
-    : midias.filter(midia =>
-        midia.texto_transcricao &&
-        midia.texto_transcricao.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-  // Melhoria de UX (Passo 4): Limpar o player se o vídeo for filtrado
+  // Outro useEffect
   useEffect(() => {
     if (selectedMidia && searchTerm.trim() !== '') {
-      const isSelectedMidiaVisible = midiasParaExibir.some(midia => midia.id === selectedMidia.id);
-      if (!isSelectedMidiaVisible) {
+      const aindaNaLista = midiasParaExibir.find(m => m.id === selectedMidia.id);
+      if (!aindaNaLista) {
         setSelectedMidia(null);
-        setVisibleTranscriptionId(null);
       }
     }
   }, [midiasParaExibir, selectedMidia, searchTerm]);
 
-  return (
-    <div className="app-container">
-      <main className="main-content">
-        {selectedMidia ? (
-          <div className="player-container">
-            <LiteYouTubeEmbed
-              key={selectedMidia.id}
-              id={getYouTubeID(selectedMidia.url_midia)}
-              title={selectedMidia.titulo}
-            />
-            {visibleTranscriptionId === selectedMidia.id && selectedMidia.texto_transcricao && (
-              <div className="transcription-area">
-                <p>{selectedMidia.texto_transcricao}</p>
-              </div>
-            )}
-            {transcribingId === selectedMidia.id && (
-              <div className="transcription-status">A transcrever áudio...</div>
-            )}
-          </div>
-        ) : (
-          <div className="placeholder-text">
-            <h2>Player de Mídia</h2>
-            <p>Selecione um item da playlist para reproduzir.</p>
-          </div>
-        )}
-      </main>
+  if (!user) {
+    return <Login />;
+  }
 
-      <aside className="sidebar">
-        <MediaForm 
-          onMidiaAdded={handleMidiaAdded}
-          onMidiaUpdated={handleMidiaUpdated}
-          midiaToEdit={editingMidia}
-          setEditingMidia={setEditingMidia} // Adicionado para limpar o form
-        />
-        <hr />
+  return (
+    <div className="app-container">
+      <main className="main-content">
+        {selectedMidia ? (
+          <div className="player-container">
+            <LiteYouTubeEmbed
+              key={selectedMidia.id}
+              id={getYouTubeID(selectedMidia.url_midia)}
+              title={selectedMidia.titulo}
+            />
+            {visibleTranscriptionId === selectedMidia.id && selectedMidia.texto_transcricao && (
+              <div className="transcription-overlay">
+                <h3>Transcrição:</h3>
+                <p>{selectedMidia.texto_transcricao}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="placeholder">
+            <h2>Selecione um vídeo para reproduzir</h2>
+          </div>
+        )}
+      </main>
 
-        {/* Indicador de Status do Backend */}
-        <div className={`backend-status status-${backendStatus}`}>
-          {backendStatus === 'pending' && 'A ligar ao servidor...'}
-          {backendStatus === 'online' && 'Ligado ao servidor.'}
-          {backendStatus === 'offline' && 'Erro de ligação. O servidor backend está desligado?'}
+      <aside className="sidebar">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1>Gerenciador</h1>
+          <button
+            onClick={logout}
+            style={{ padding: '5px 10px', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          >
+            Sair
+          </button>
         </div>
 
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Buscar na transcrição..."
-            className="search-bar"
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <h2>Minha Playlist</h2>
-        <ul className="media-list">
-          {midiasParaExibir.map(midia => {
+        <hr />
+
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Buscar na transcrição..."
+            className="search-bar"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <MediaForm
+          onMidiaAdded={handleMidiaAdded}
+          midiaToEdit={editingMidia}
+          setEditingMidia={setEditingMidia}
+        />
+
+        <hr />
+
+        <h2>Minha Playlist</h2>
+        {midiasParaExibir.length === 0 && searchTerm !== '' && (
+           <p style={{ color: '#666', fontStyle: 'italic' }}>Nenhum resultado encontrado...</p>
+        )}
+
+        <ul className="media-list">
+          {midiasParaExibir.map(midia => {
             const videoID = getYouTubeID(midia.url_midia);
-            const thumbnailUrl = videoID 
-              ? `https://img.youtube.com/vi/${videoID}/mqdefault.jpg`
-              : 'https://placehold.co/100x56/eee/ccc?text=Sem+URL';
+            const thumbnailUrl = `https://img.youtube.com/vi/${videoID}/mqdefault.jpg`;
 
             return (
-              <li 
-                key={midia.id} 
-                className={`media-item ${selectedMidia?.id === midia.id ? 'selected' : ''}`} 
+              <li
+                key={midia.id}
+                className={`media-item ${selectedMidia?.id === midia.id ? 'active' : ''}`}
                 onClick={() => handleSelectMidia(midia)}
               >
-                
-                {/* Melhoria de Design: Thumbnail */}
-                <img 
-                  src={thumbnailUrl} 
-                  alt={`Thumbnail para ${midia.titulo}`} 
-                  className="media-item-thumbnail" 
+                <img
+                  src={thumbnailUrl}
+                  alt={`Thumbnail para ${midia.titulo}`}
+                  className="media-item-thumbnail"
                 />
 
                 <div className="media-item-info">
-                <strong>{midia.titulo}</strong>
-              </div>
-              <div className="media-item-actions">
-                <button onClick={(e) => handleEdit(e, midia)}>Editar</button>
-                <button onClick={(e) => handleDelete(e, midia.id)} className="btn-delete">Apagar</button>
-                <button onClick={(e) => handleTranscribeClick(e, midia)} className="btn-transcribe">
-                  {midia.texto_transcricao ? `Transcrição/${visibleTranscriptionId === midia.id ? 'Off' : 'On'}` : 'Transcrever'}
-                </button>
-              </div>
+                  <strong>{midia.titulo}</strong>
+                </div>
+
+                <div className="media-item-actions">
+                  <button
+                    className={`btn-transcribe ${midia.texto_transcricao ? 'has-text' : ''}`}
+                    onClick={(e) => handleTranscribeClick(e, midia)}
+                    disabled={transcribingId === midia.id}
+                    title={midia.texto_transcricao ? "Ver Transcrição" : "Gerar Transcrição"}
+                  >
+                     {transcribingId === midia.id ? '...' : (visibleTranscriptionId === midia.id ? 'Off' : (midia.texto_transcricao ? 'On' : 'Transcrever'))}
+                  </button>
+
+                  <button className="btn-edit" onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(midia);
+                  }}>Editar</button>
+
+                  <button className="btn-delete" onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(midia.id);
+                  }}>X</button>
+                </div>
               </li>
             );
           })}
-          
-          {/* Melhoria de UX (Passo 4): Mensagem "Nenhum resultado" */}
-          {midiasParaExibir.length === 0 && searchTerm.length > 0 && (
-            <li className="no-results-message">
-              Nenhum resultado encontrado para "{searchTerm}".
-            </li>
-          )}
-
-        </ul>
-      </aside>
-    </div>
-  );
+        </ul>
+      </aside>
+    </div>
+  );
 }
 
 export default App;

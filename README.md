@@ -1,50 +1,50 @@
 
 🚀 Projeto Gerenciador de Mídias (ADS)
+
 Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma playlist de mídias, reproduzir vídeos e obter transcrições de áudio.
 
+✅ Status Atual do Projeto: Fase 4 Concluída
+A aplicação evoluiu para um sistema seguro e robusto. Além das funcionalidades de mídia, agora contamos com um sistema completo de autenticação, permitindo que múltiplos usuários criem contas e gerenciem suas próprias playlists privadas.
+
+---
 #
 
-✅ Status Atual do Projeto: Fase 2 Concluída
-A aplicação evoluiu da sua versão inicial de CRUD para uma interface de mídia interativa e sofisticada, com a funcionalidade de transcrição (simulada) já implementada.
-
 ✨ Funcionalidades
+
 [Fase 1] Gestão Completa de Mídias (CRUD):
-
 [x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.
-
 [x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
-
 [x] Atualizar (Update): Editar o título e a URL de uma mídia existente.
-
 [x] Apagar (Delete): Remover uma mídia da lista.
 
 #
 
 [Fase 2] Interface Interativa Estilo YouTube:
-
 [x] Layout Profissional: Interface com player de vídeo principal e playlist na barra lateral.
-
 [x] Seleção de Mídia: Clicar num item da playlist carrega-o imediatamente no player.
-
 [x] Player de Vídeo Integrado: Reprodução de vídeos diretamente de URLs do YouTube.
-
-[Fase 2] Transcrição de Áudio (Simulada):
-
 [x] Funcionalidade de Transcrição: Botão para solicitar a transcrição de uma mídia.
-
 [x] Exibição em Overlay: A transcrição aparece por cima do vídeo e pode ser mostrada/ocultada.
 
 #
 
-[Fase 3] Busca Avançada e Melhoria da Interface
+[Fase 3] Busca Avançada e Melhoria da Interface:
+[x] Busca na Transcrição (Client-Side): Implementada uma barra de busca no frontend que filtra a playlist em tempo real.
+[x] Simulação Dinâmica no Backend: O endpoint de transcrição fornece textos únicos baseados no título da mídia.
+[x] Melhoria de UI/UX (Thumbnails): A playlist agora exibe as thumbnails oficiais dos vídeos do YouTube.
+[x] UX de Busca: Lógica inteligente para limpar o player caso o vídeo selecionado seja filtrado.
 
-[x] Busca na Transcrição (Client-Side): Implementada uma barra de busca no frontend que filtra a playlist em tempo real. O utilizador pode agora pesquisar por palavras-chave (ex: "Roxette", "George Michael") e a lista é atualizada instantaneamente, mostrando apenas as mídias cuja transcrição contém o texto procurado.
+#
 
-[x] Simulação Dinâmica no Backend: O endpoint de transcrição simulada foi atualizado. Ele agora lê o título da mídia no banco de dados e usa uma lógica switch para fornecer um texto de transcrição único para cada vídeo, permitindo testes de busca realistas.
-
-[x] Melhoria de UI/UX (Thumbnails): A playlist foi redesenhada para incluir as thumbnails (imagens) dos vídeos do YouTube, criando uma interface muito mais profissional e visualmente apelativa.
-
-[x] Melhoria de UX (Busca): Adicionada uma mensagem de "Nenhum resultado encontrado" e a lógica para limpar o player de vídeo caso a mídia selecionada seja filtrada pela busca.
+[Fase 4] Autenticação e Segurança (Novidade!):
+[x] Sistema de Login e Cadastro: Implementadas telas para registro de novos usuários e login de usuários existentes.
+[x] Segurança Avançada (Backend):
+    - Senhas criptografadas no banco de dados (Hash com Bcrypt).
+    - Geração de Tokens de Acesso (JWT) para sessões seguras.
+    - Middleware de Proteção ("O Porteiro"): Bloqueia acessos não autorizados à API.
+[x] Isolamento de Dados (Privacidade): O sistema agora é multi-usuário. Cada usuário vê apenas as suas próprias mídias e não tem acesso aos dados de outros.
+[x] Contexto de Autenticação (Frontend): Uso do React Context API para gerenciar a sessão do usuário globalmente.
+[x] UI Personalizada: O sistema reconhece o usuário logado e exibe uma saudação personalizada ("Olá, [Nome]").
 
 #
 

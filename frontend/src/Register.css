@@ -1,0 +1,89 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e9ecef; /* Um cinza ligeiramente diferente */
+}
+
+.register-box {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.register-box h2 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.btn-register {
+  width: 100%;
+  padding: 10px;
+  background-color: #27ae60; /* Verde para cadastro */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-register:hover {
+  background-color: #219150;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #fadbd8;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.success-message {
+  color: #27ae60;
+  background-color: #d5f5e3;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.login-link {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.btn-text, .btn-link {
+  background: none;
+  border: none;
+  color: #1877f2;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+}

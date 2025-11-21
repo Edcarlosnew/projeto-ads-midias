@@ -1,37 +1,51 @@
 import { createContext, useState, useEffect } from 'react';
+// 1. Importamos a biblioteca que acabamos de instalar
+import { jwtDecode } from "jwt-decode";
 
-// Cria o contexto (a "nuvem" de dados acessível a toda a aplicação)
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Tenta buscar um token salvo no localStorage ao iniciar (para não deslogar no F5)
   const [token, setToken] = useState(localStorage.getItem('token'));
-
-  // O estado 'user' pode guardar informações decodificadas do token no futuro
-  // Por enquanto, se tem token, assumimos que tem um usuário logado.
-  const [user, setUser] = useState(token ? { token } : null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (token) {
-      // Se o token mudar (login), salvamos no navegador
       localStorage.setItem('token', token);
-      setUser({ token });
+
+      // 2. TENTATIVA DE DECODIFICAR O TOKEN
+      try {
+        // O jwtDecode abre o token e lê o que tem dentro (id, nome, exp)
+        const decoded = jwtDecode(token);
+
+        // Verifica se o token expirou (opcional, mas boa prática)
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp < currentTime) {
+          // Se expirou, faz logout forçado
+          logout();
+        } else {
+          // Se está válido, salvamos os dados (nome, id) no estado 'user'
+          setUser({ ...decoded, token });
+        }
+      } catch (error) {
+      console.error("Erro ao decodificar token:", error); // <-- Adicionamos esta linha
+      // Se o token for inválido ou estiver corrompido
+      logout();
+    }
     } else {
-      // Se o token for removido (logout), limpamos o navegador
       localStorage.removeItem('token');
       setUser(null);
     }
   }, [token]);
 
-  // Função chamada pelo formulário de Login
   const login = (newToken) => {
     setToken(newToken);
   };
 
-  // Função chamada pelo botão de Sair
   const logout = () => {
     setToken(null);
+    setUser(null);
+    localStorage.removeItem('token');
   };
 
   return (

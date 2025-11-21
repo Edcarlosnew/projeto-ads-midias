@@ -3,7 +3,7 @@ import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import './Login.css';
 
-function Login() {
+function Login({ onRegisterClick }){
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
@@ -68,9 +68,20 @@ function Login() {
 
           <button type="submit" className="btn-login">Entrar</button>
         </form>
+        <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+          <p style={{ fontSize: '0.9rem', marginBottom: '5px' }}>Ainda não tem conta?</p>
+          <button
+            type="button"
+            onClick={onRegisterClick}
+            style={{ background: 'none', border: 'none', color: '#1877f2', cursor: 'pointer', textDecoration: 'underline', fontSize: '1rem' }}
+          >
+            Criar nova conta
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
 
 export default Login;

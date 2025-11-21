@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function MediaForm({ onMidiaAdded, midiaToEdit, onMidiaUpdated }) { 
+function MediaForm({ onMidiaAdded, midiaToEdit, setEditingMidia }) {
   const [titulo, setTitulo] = useState('');
   const [url, setUrl] = useState('');
 
@@ -17,50 +17,109 @@ function MediaForm({ onMidiaAdded, midiaToEdit, onMidiaUpdated }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
     const midiaData = { titulo: titulo, url_midia: url };
 
     try {
+      // ▼▼▼ PEGAR O TOKEN DO NAVEGADOR ▼▼▼
+      const token = localStorage.getItem('token');
+
+      // Configurar o cabeçalho com o Token
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
       if (midiaToEdit) {
-        // SE estamos em modo de edição, fazemos um PUT para atualizar
-        await axios.put(`http://localhost:3001/midias/${midiaToEdit.id}`, midiaData);
-        onMidiaUpdated(); // Avisa o App.jsx que terminamos a edição
+        // ▼▼▼ ENVIAR O TOKEN NA EDIÇÃO (PUT) ▼▼▼
+        await axios.put(
+          `http://localhost:3001/midias/${midiaToEdit.id}`,
+          midiaData,
+          config // <--- Token aqui
+        );
+        setEditingMidia(null);
       } else {
-        // SE NÃO, fazemos um POST para criar um novo item
-        await axios.post('http://localhost:3001/midias', midiaData);
-        onMidiaAdded(); // AGORA NO SÍTIO CERTO: Avisa o App.jsx que terminamos de adicionar
-        // Limpa os campos do formulário após o envio bem-sucedido
-        setTitulo('');
-        setUrl('');
+        // ▼▼▼ ENVIAR O TOKEN NA CRIAÇÃO (POST) ▼▼▼
+        await axios.post(
+          'http://localhost:3001/midias',
+          midiaData,
+          config // <--- Token aqui
+        );
       }
+
+      // Limpa o formulário e avisa o App para atualizar a lista
+      setTitulo('');
+      setUrl('');
+      onMidiaAdded();
+
     } catch (error) {
-      console.error("Erro ao salvar mídia:", error);
-      alert("Falha ao salvar mídia.");
+      console.error("Erro ao salvar:", error);
+      alert("Falha ao salvar mídia. Verifique se você está logado.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>{midiaToEdit ? 'Editar Mídia' : 'Adicionar Nova Mídia'}</h2>
-      <div>
-        <label>Título:</label>
-        <input 
-          type="text" 
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          required 
-        />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div>
+          <label style={{ fontWeight: 'bold' }}>Título:</label>
+          <input
+            type="text"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            required
+            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ fontWeight: 'bold' }}>URL:</label>
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            required
+            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+          />
+        </div>
       </div>
-      <div>
-        <label>URL:</label>
-        <input 
-          type="text" 
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          required
-        />
+
+      <div style={{ marginTop: '15px' }}>
+        <button type="submit" style={{
+          width: '100%',
+          padding: '10px',
+          backgroundColor: '#1877f2',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          fontWeight: 'bold',
+          cursor: 'pointer'
+        }}>
+          {midiaToEdit ? 'Salvar Alterações' : 'Adicionar'}
+        </button>
+
+        {midiaToEdit && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingMidia(null);
+              setTitulo('');
+              setUrl('');
+            }}
+            style={{
+              marginTop: '10px',
+              width: '100%',
+              padding: '8px',
+              backgroundColor: '#ccc',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            Cancelar Edição
+          </button>
+        )}
       </div>
-      <button type="submit">{midiaToEdit ? 'Salvar Alterações' : 'Adicionar'}</button>
     </form>
   );
 }

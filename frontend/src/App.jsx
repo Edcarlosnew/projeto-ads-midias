@@ -4,9 +4,10 @@ import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 import './App.css';
 
-// Importamos o Contexto e a Tela de Login
+// Importamos Contexto e Telas de Auth
 import { AuthContext } from "./AuthContext.jsx";
 import Login from "./Login.jsx";
+import Register from "./Register.jsx"; // <-- NOVO IMPORT
 import MediaForm from './MediaForm';
 
 // Função auxiliar para pegar ID do YouTube
@@ -17,8 +18,10 @@ const getYouTubeID = (url) => {
 };
 
 function App() {
-  // 1. Hooks (Tudo isso tem que ficar no topo, antes de qualquer return)
   const { user, logout } = useContext(AuthContext);
+
+  // Estado para controlar se mostramos Login ou Cadastro
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const [midias, setMidias] = useState([]);
   const [editingMidia, setEditingMidia] = useState(null);
@@ -27,9 +30,8 @@ function App() {
   const [visibleTranscriptionId, setVisibleTranscriptionId] = useState(null);
   const [transcribingId, setTranscribingId] = useState(null);
 
-  // Função de busca (movida para fora do useEffect para ser reutilizada)
+  // Função de busca
   const fetchMidias = async () => {
-    // Se não tiver usuário, nem tenta buscar
     if (!user) return;
 
     try {
@@ -48,7 +50,6 @@ function App() {
     }
   };
 
-  // useEffect roda sempre que o 'user' muda
   useEffect(() => {
     if (user) {
       fetchMidias();
@@ -70,7 +71,7 @@ function App() {
         setSelectedMidia(null);
       }
     } catch (error) {
-      console.error(error); // Usando o erro para sumir o warning
+      console.error(error);
       alert("Falha ao apagar mídia.");
     }
   };
@@ -84,6 +85,9 @@ function App() {
 
   const handleTranscribeClick = async (e, midia) => {
     e.stopPropagation();
+
+    setSelectedMidia(midia);
+
     if (midia.texto_transcricao) {
       setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
     } else {
@@ -99,13 +103,12 @@ function App() {
         setVisibleTranscriptionId(midia.id);
       } catch (error) {
         console.error("Erro na transcrição:", error);
-        alert("Erro ao transcrever.");
+        alert("Erro ao transcrever. Verifique o console (F12) para detalhes.");
         setTranscribingId(null);
       }
     }
   };
 
-  // Lógica de filtro
   const midiasParaExibir = searchTerm.trim() === ''
     ? midias
     : midias.filter(midia =>
@@ -113,7 +116,6 @@ function App() {
         midia.texto_transcricao.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-  // Outro useEffect
   useEffect(() => {
     if (selectedMidia && searchTerm.trim() !== '') {
       const aindaNaLista = midiasParaExibir.find(m => m.id === selectedMidia.id);
@@ -123,10 +125,22 @@ function App() {
     }
   }, [midiasParaExibir, selectedMidia, searchTerm]);
 
+  // ============================================================
+  // LÓGICA DE DECISÃO DE TELA (Login vs Cadastro vs App)
+  // ============================================================
+
+  // 1. Se NÃO tem usuário logado...
   if (!user) {
-    return <Login />;
+    if (isRegistering) {
+      // ...e clicou em "Criar Conta", mostra o Registro
+      return <Register onLoginClick={() => setIsRegistering(false)} />;
+    } else {
+      // ...caso contrário, mostra o Login normal
+      return <Login onRegisterClick={() => setIsRegistering(true)} />;
+    }
   }
 
+  // 2. Se TEM usuário, mostra o App Principal (Gerenciador)
   return (
     <div className="app-container">
       <main className="main-content">
@@ -152,14 +166,25 @@ function App() {
       </main>
 
       <aside className="sidebar">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="user-header">
           <h1>Gerenciador</h1>
-          <button
-            onClick={logout}
-            style={{ padding: '5px 10px', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-          >
-            Sair
-          </button>
+          <div className="user-info">
+            <div style={{ flex: 1, marginRight: '10px' }}>
+              <p style={{ margin: 0, lineHeight: '1.3' }}>
+                Olá, <strong>{user?.nome?.split(' ')[0] || 'Usuário'}</strong>
+                {' '}
+                <span style={{ fontSize: '0.9rem', color: '#666', display: 'inline-block'}}>
+                  bem-vindo de volta!
+                </span>
+              </p>
+            </div>
+            <button
+              onClick={logout}
+              className="btn-logout"
+            >
+              Sair
+            </button>
+          </div>
         </div>
 
         <hr />
@@ -226,7 +251,7 @@ function App() {
                   <button className="btn-delete" onClick={(e) => {
                     e.stopPropagation();
                     handleDelete(midia.id);
-                  }}>X</button>
+                  }}>Deletar</button>
                 </div>
               </li>
             );

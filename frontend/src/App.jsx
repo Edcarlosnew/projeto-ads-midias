@@ -9,8 +9,9 @@ import Login from "./Login.jsx";
 import Register from "./Register.jsx";
 import ForgotPassword from "./ForgotPassword.jsx";
 import ResetPassword from "./ResetPassword.jsx";
-import ActivateAccount from "./ActivateAccount.jsx"; // <-- NOVO IMPORT
+import ActivateAccount from "./ActivateAccount.jsx";
 import MediaForm from './MediaForm';
+import AdminDashboard from "./AdminDashboard.jsx";
 
 const getYouTubeID = (url) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -24,10 +25,11 @@ function App() {
   // Estados de navegação
   const [isRegistering, setIsRegistering] = useState(false);
   const [isForgot, setIsForgot] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   // Estados para rotas especiais (via URL)
   const [resetToken, setResetToken] = useState(null);
-  const [activationToken, setActivationToken] = useState(null); // <-- NOVO ESTADO
+  const [activationToken, setActivationToken] = useState(null);
 
   // Estados do Gerenciador
   const [midias, setMidias] = useState([]);
@@ -41,13 +43,11 @@ function App() {
   useEffect(() => {
     const path = window.location.pathname;
 
-    // Rota de Reset de Senha
     if (path.startsWith('/reset-password/')) {
       const token = path.split('/reset-password/')[1];
       if (token) setResetToken(token);
     }
 
-    // Rota de Ativação de Conta (NOVO)
     if (path.startsWith('/activate/')) {
       const token = path.split('/activate/')[1];
       if (token) setActivationToken(token);
@@ -131,30 +131,20 @@ function App() {
 
   // --- ROTEAMENTO MANUAL ---
 
-  // 1. Tela de Ativação (Prioridade Alta)
-  if (activationToken) {
-    return <ActivateAccount token={activationToken} onLoginClick={clearUrl} />;
-  }
+  // 1. Telas Especiais (Ativação e Reset)
+  if (activationToken) return <ActivateAccount token={activationToken} onLoginClick={clearUrl} />;
+  if (resetToken) return <ResetPassword token={resetToken} onLoginClick={clearUrl} />;
 
-  // 2. Tela de Reset de Senha
-  if (resetToken) {
-    return <ResetPassword token={resetToken} onLoginClick={clearUrl} />;
-  }
-
-  // 3. Telas de Autenticação (Sem usuário)
+  // 2. Telas de Autenticação (Sem usuário)
   if (!user) {
-    if (isForgot) {
-      return <ForgotPassword onBackToLogin={() => setIsForgot(false)} />;
-    }
-    if (isRegistering) {
-      return <Register onLoginClick={() => setIsRegistering(false)} />;
-    }
-    return (
-      <Login
-        onRegisterClick={() => setIsRegistering(true)}
-        onForgotPasswordClick={() => setIsForgot(true)}
-      />
-    );
+    if (isForgot) return <ForgotPassword onBackToLogin={() => setIsForgot(false)} />;
+    if (isRegistering) return <Register onLoginClick={() => setIsRegistering(false)} />;
+    return <Login onRegisterClick={() => setIsRegistering(true)} onForgotPasswordClick={() => setIsForgot(true)} />;
+  }
+
+  // 3. PAINEL ADMIN
+  if (showAdmin) {
+    return <AdminDashboard onBack={() => setShowAdmin(false)} />;
   }
 
   // 4. App Principal (Com usuário logado)
@@ -185,8 +175,8 @@ function App() {
       <aside className="sidebar">
         <div className="user-header">
           <h1>Gerenciador</h1>
-          <div className="user-info">
-            <div style={{ flex: 1, marginRight: '10px' }}>
+          <div className="user-info" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+            <div>
               <p style={{ margin: 0, lineHeight: '1.3' }}>
                 Olá, <strong>{user?.nome?.split(' ')[0] || 'Usuário'}</strong>.
                 {' '}
@@ -195,9 +185,24 @@ function App() {
                 </span>
               </p>
             </div>
-            <button onClick={logout} className="btn-logout">Sair</button>
+
+            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => setShowAdmin(true)}
+                  style={{ flex: 1, padding: '6px', background: '#2c3e50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  Painel Admin
+                </button>
+              )}
+
+              <button onClick={logout} className="btn-logout" style={{ flex: 1 }}>
+                Sair
+              </button>
+            </div>
           </div>
         </div>
+
         <hr />
         <div className="search-container">
           <input type="text" placeholder="Buscar na transcrição..." className="search-bar"
@@ -211,9 +216,10 @@ function App() {
         <ul className="media-list">
           {midiasParaExibir.map(midia => {
             const videoID = getYouTubeID(midia.url_midia);
+            const thumbnailUrl = `https://img.youtube.com/vi/${videoID}/mqdefault.jpg`;
             return (
               <li key={midia.id} className={`media-item ${selectedMidia?.id === midia.id ? 'active' : ''}`} onClick={() => handleSelectMidia(midia)}>
-                <img src={`https://img.youtube.com/vi/${videoID}/mqdefault.jpg`} alt={midia.titulo} className="media-item-thumbnail" />
+                <img src={thumbnailUrl} alt={midia.titulo} className="media-item-thumbnail" />
                 <div className="media-item-info"><strong>{midia.titulo}</strong></div>
                 <div className="media-item-actions">
                   <button className={`btn-transcribe ${midia.texto_transcricao ? 'has-text' : ''}`} onClick={(e) => handleTranscribeClick(e, midia)} disabled={transcribingId === midia.id}>

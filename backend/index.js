@@ -11,6 +11,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const verificarToken = require('./authMiddleware');
+const verificarAdmin = require('./adminMiddleware');
 
 require('dotenv').config();
 
@@ -118,7 +119,7 @@ app.post('/auth/login', async (req, res) => {
 
     // 4. Tudo certo? Gera o token
     const token = jwt.sign(
-      { id: usuario.id, nome: usuario.nome },
+      { id: usuario.id, nome: usuario.nome, role: usuario.role },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
     );
@@ -349,6 +350,34 @@ app.post('/midias/:id/transcrever', async (req, res) => {
   } catch (error) {
     console.error('Erro no processo de transcrição:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: 'Erro interno do servidor durante a transcrição.' });
+  }
+});
+
+// ==================================================
+// 👑 ROTAS ADMINISTRATIVAS (Só Admin entra)
+// ==================================================
+
+// Note que usamos DOIS middlewares: primeiro verifica se logou, depois se é admin
+app.get('/admin/stats', verificarToken, verificarAdmin, async (req, res) => {
+  try {
+    // 1. Total de usuários
+    const [totalResult] = await db.query('SELECT COUNT(*) as total FROM usuarios');
+
+    // 2. Usuários Ativos (is_verified = 1)
+    const [activeResult] = await db.query('SELECT COUNT(*) as active FROM usuarios WHERE is_verified = 1');
+
+    // 3. Usuários Pendentes
+    const [pendingResult] = await db.query('SELECT COUNT(*) as pending FROM usuarios WHERE is_verified = 0');
+
+    res.json({
+      totalUsers: totalResult[0].total,
+      activeUsers: activeResult[0].active,
+      pendingUsers: pendingResult[0].pending
+    });
+
+  } catch (error) {
+    console.error('Erro no painel admin:', error);
+    res.status(500).json({ error: 'Erro ao buscar estatísticas.' });
   }
 });
 

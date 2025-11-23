@@ -90,24 +90,33 @@ app.post('/auth/login', async (req, res) => {
   }
 
   try {
+    // 1. Buscar o usuário pelo email
     const [usuarios] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+
+    // Se não achar o email, aí sim é Credencial Inválida (para não dar dica se o email existe)
     if (usuarios.length === 0) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
     const usuario = usuarios[0];
 
-    // ▼▼▼ NOVO: Verificar se a conta está ativa ▼▼▼
-    // Nota: O MySQL retorna 0 ou 1. 0 é falso, 1 é verdadeiro.
-    if (usuario.is_verified === 0) {
-      return res.status(403).json({ error: 'Sua conta ainda não foi ativada. Verifique seu e-mail.' });
-    }
-
+    // 2. Verificar a SENHA primeiro
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+
     if (!senhaCorreta) {
+      // Se a senha está errada, também é Credencial Inválida
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
+    // 3. AGORA SIM: Se email e senha batem, verificamos se está ATIVO
+    if (usuario.is_verified === 0) {
+      // Mensagem específica e clara!
+      return res.status(403).json({
+        error: 'Sua conta foi criada, mas ainda não foi ativada. Por favor, verifique seu e-mail e clique no link de ativação.' 
+      });
+    }
+
+    // 4. Tudo certo? Gera o token
     const token = jwt.sign(
       { id: usuario.id, nome: usuario.nome },
       process.env.JWT_SECRET,

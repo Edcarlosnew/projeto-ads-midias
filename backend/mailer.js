@@ -1,17 +1,13 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config(); // Importante para ler o .env
 
-// Vamos criar uma conta de teste automática (Ethereal)
-// Isso evita ter que configurar senhas reais por enquanto
 const criarTransportador = async () => {
-  const testAccount = await nodemailer.createTestAccount();
-
+  // CONFIGURAÇÃO REAL (GMAIL)
   const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true para 465, false para outras portas
+    service: 'gmail', 
     auth: {
-      user: testAccount.user, // usuário gerado automaticamente
-      pass: testAccount.pass, // senha gerada automaticamente
+      user: process.env.EMAIL_USER, // Lê do arquivo .env
+      pass: process.env.EMAIL_PASS  // Lê do arquivo .env
     },
   });
 

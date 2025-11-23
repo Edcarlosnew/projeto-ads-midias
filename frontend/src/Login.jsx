@@ -3,33 +3,28 @@ import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import './Login.css';
 
-function Login({ onRegisterClick }){
+// ▼▼▼ RECEBE A NOVA FUNÇÃO 'onForgotPasswordClick' ▼▼▼
+function Login({ onRegisterClick, onForgotPasswordClick }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
 
-  // Pega a função 'login' do nosso Contexto para usar quando der tudo certo
   const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Limpa erros anteriores
+    setError('');
 
     try {
-      // 1. Envia os dados para o Backend
       const response = await axios.post('http://localhost:3001/auth/login', {
         email,
         senha
       });
 
-      // 2. Se chegou aqui, o login funcionou!
       const token = response.data.token;
-
-      // 3. Avisa o Contexto que temos um token novo
       login(token);
 
     } catch (err) {
-      // Se der erro (ex: senha errada), mostra mensagem
       if (err.response && err.response.data) {
         setError(err.response.data.error);
       } else {
@@ -64,10 +59,21 @@ function Login({ onRegisterClick }){
               onChange={(e) => setSenha(e.target.value)}
               required
             />
+            {/* ▼▼▼ LINK DE ESQUECI A SENHA ▼▼▼ */}
+            <div style={{ textAlign: 'right', marginTop: '5px' }}>
+              <button
+                type="button"
+                onClick={onForgotPasswordClick}
+                style={{ background: 'none', border: 'none', color: '#666', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Esqueci minha senha
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn-login">Entrar</button>
         </form>
+
         <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
           <p style={{ fontSize: '0.9rem', marginBottom: '5px' }}>Ainda não tem conta?</p>
           <button
@@ -82,6 +88,5 @@ function Login({ onRegisterClick }){
     </div>
   );
 }
-
 
 export default Login;

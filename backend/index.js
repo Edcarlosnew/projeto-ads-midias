@@ -1,3 +1,6 @@
+const nodemailer = require('nodemailer');
+const crypto = require('crypto'); // Já vem com o Node.js (gera códigos aleatórios)
+const criarTransportador = require('./mailer'); // O nosso arquivo de e-mail
 const express = require('express');
 const db = require('./db');
 const cors = require('cors');
@@ -89,6 +92,98 @@ app.post('/auth/login', async (req, res) => {
   } catch (error) {
     console.error('Erro no login:', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
+// --- ROTA DE ESQUECI A SENHA (Forgot Password) ---
+app.post('/auth/forgot_password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // 1. Verificar se o email existe
+    const [usuarios] = await db.query('SELECT id FROM usuarios WHERE email = ?', [email]);
+    if (usuarios.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+    const usuario = usuarios[0];
+
+    // 2. Gerar Token e Data de Expiração (1 hora)
+    // Gera 20 bytes aleatórios e converte para texto (hexadecimal)
+    const token = crypto.randomBytes(20).toString('hex');
+
+    // Pega a hora de agora e soma 1 hora (3600000 milissegundos)
+    // O formato para MySQL DATETIME é 'YYYY-MM-DD HH:MM:SS'
+    const agora = new Date();
+    agora.setHours(agora.getHours() + 1);
+
+    // 3. Salvar no Banco de Dados
+    await db.query(
+      'UPDATE usuarios SET reset_token = ?, reset_expires = ? WHERE id = ?',
+      [token, agora, usuario.id]
+    );
+
+    // 4. Enviar o E-mail (Usando Ethereal para teste)
+    const transporter = await criarTransportador();
+
+    const info = await transporter.sendMail({
+      from: '"Gerenciador de Mídias" <noreply@gerenciador.com>',
+      to: email,
+      subject: 'Recuperação de Senha',
+      html: `
+        <p>Você solicitou a recuperação de senha.</p>
+        <p>Use este token para redefinir sua senha: <strong>${token}</strong></p>
+        <p>Ou clique no link abaixo (simulação):</p>
+        <a href="http://localhost:5173/reset-password/${token}">Redefinir Senha</a>
+      `,
+    });
+
+    console.log('Link de teste do E-mail:', nodemailer.getTestMessageUrl(info));
+
+    // Retornamos a URL de teste para você ver o email no navegador sem configurar nada
+    res.json({
+      message: 'E-mail de recuperação enviado!',
+      testUrl: nodemailer.getTestMessageUrl(info)
+    });
+
+  } catch (error) {
+    console.error('Erro no esqueci a senha:', error);
+    res.status(500).json({ error: 'Erro interno ao tentar recuperar senha.' });
+  }
+});
+
+// --- ROTA DE REDEFINIR SENHA (Reset Password) ---
+app.post('/auth/reset_password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // 1. Procurar usuário com esse token e que o token ainda não tenha expirado
+    // O 'NOW()' é a hora atual do banco de dados
+    const [usuarios] = await db.query(
+      'SELECT * FROM usuarios WHERE reset_token = ? AND reset_expires > NOW()',
+      [token]
+    );
+
+    if (usuarios.length === 0) {
+      return res.status(400).json({ error: 'Token inválido ou expirado.' });
+    }
+
+    const usuario = usuarios[0];
+
+    // 2. Encriptar a nova senha
+    const salt = await bcrypt.genSalt(10);
+    const senhaHash = await bcrypt.hash(newPassword, salt);
+
+    // 3. Atualizar a senha e limpar o token (para não ser usado de novo)
+    await db.query(
+      'UPDATE usuarios SET senha = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?',
+      [senhaHash, usuario.id]
+    );
+
+    res.json({ message: 'Senha alterada com sucesso! Agora você pode fazer login.' });
+
+  } catch (error) {
+    console.error('Erro ao redefinir senha:', error);
+    res.status(500).json({ error: 'Erro interno ao redefinir senha.' });
   }
 });
 

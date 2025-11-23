@@ -4,13 +4,13 @@ import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 import './App.css';
 
-// Importamos Contexto e Telas de Auth
 import { AuthContext } from "./AuthContext.jsx";
 import Login from "./Login.jsx";
-import Register from "./Register.jsx"; // <-- NOVO IMPORT
+import Register from "./Register.jsx";
+import ForgotPassword from "./ForgotPassword.jsx";
+import ResetPassword from "./ResetPassword.jsx";
 import MediaForm from './MediaForm';
 
-// Função auxiliar para pegar ID do YouTube
 const getYouTubeID = (url) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
@@ -20,9 +20,12 @@ const getYouTubeID = (url) => {
 function App() {
   const { user, logout } = useContext(AuthContext);
 
-  // Estado para controlar se mostramos Login ou Cadastro
+  // Estados de navegação
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isForgot, setIsForgot] = useState(false);
+  const [resetToken, setResetToken] = useState(null);
 
+  // Estados do Gerenciador
   const [midias, setMidias] = useState([]);
   const [editingMidia, setEditingMidia] = useState(null);
   const [selectedMidia, setSelectedMidia] = useState(null);
@@ -30,53 +33,60 @@ function App() {
   const [visibleTranscriptionId, setVisibleTranscriptionId] = useState(null);
   const [transcribingId, setTranscribingId] = useState(null);
 
-  // Função de busca
+  // --- EFEITO PARA DETECTAR LINK DE RESET NA URL ---
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/reset-password/')) {
+      const token = path.split('/reset-password/')[1];
+      if (token) {
+        setResetToken(token);
+      }
+    }
+  }, []);
+
+  // Função para limpar a URL
+  const clearUrl = () => {
+    window.history.pushState({}, document.title, "/");
+    setResetToken(null);
+    setIsForgot(false);
+    setIsRegistering(false);
+  };
+
+  // --- LÓGICA DE BUSCA E CRUD ---
   const fetchMidias = async () => {
     if (!user) return;
-
     try {
       const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
-
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       const response = await axios.get('http://localhost:3001/midias', config);
       setMidias(response.data);
     } catch (error) {
-      console.error("Erro ao buscar mídias:", error);
-      if (error.response && error.response.status === 401) {
-        logout();
-      }
+      console.error("Erro:", error);
+      if (error.response && error.response.status === 401) logout();
     }
   };
 
   useEffect(() => {
-    if (user) {
-      fetchMidias();
-    }
+    if (user) fetchMidias();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const handleMidiaAdded = () => { fetchMidias(); };
+  const handleMidiaAdded = () => fetchMidias();
 
   const handleDelete = async (id) => {
-    if(!confirm("Tem certeza que deseja apagar?")) return;
+    if(!confirm("Tem certeza?")) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3001/midias/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`http://localhost:3001/midias/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchMidias();
-      if (selectedMidia && selectedMidia.id === id) {
-        setSelectedMidia(null);
-      }
+      if (selectedMidia?.id === id) setSelectedMidia(null);
     } catch (error) {
       console.error(error);
-      alert("Falha ao apagar mídia.");
+      alert("Falha ao apagar.");
     }
   };
 
-  const handleEdit = (midia) => { setEditingMidia(midia); };
+  const handleEdit = (midia) => setEditingMidia(midia);
 
   const handleSelectMidia = (midia) => {
     setSelectedMidia(midia);
@@ -85,25 +95,20 @@ function App() {
 
   const handleTranscribeClick = async (e, midia) => {
     e.stopPropagation();
-
     setSelectedMidia(midia);
-
     if (midia.texto_transcricao) {
-      setVisibleTranscriptionId(currentId => currentId === midia.id ? null : midia.id);
+      setVisibleTranscriptionId(cur => cur === midia.id ? null : midia.id);
     } else {
       setTranscribingId(midia.id);
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
+        await axios.post(`http://localhost:3001/midias/${midia.id}/transcrever`, {}, { headers: { Authorization: `Bearer ${token}` } });
         await fetchMidias();
         setTranscribingId(null);
         setVisibleTranscriptionId(midia.id);
       } catch (error) {
-        console.error("Erro na transcrição:", error);
-        alert("Erro ao transcrever. Verifique o console (F12) para detalhes.");
+        console.error(error);
+        alert("Erro na transcrição.");
         setTranscribingId(null);
       }
     }
@@ -111,36 +116,32 @@ function App() {
 
   const midiasParaExibir = searchTerm.trim() === ''
     ? midias
-    : midias.filter(midia =>
-        midia.texto_transcricao &&
-        midia.texto_transcricao.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    : midias.filter(m => m.texto_transcricao && m.texto_transcricao.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  useEffect(() => {
-    if (selectedMidia && searchTerm.trim() !== '') {
-      const aindaNaLista = midiasParaExibir.find(m => m.id === selectedMidia.id);
-      if (!aindaNaLista) {
-        setSelectedMidia(null);
-      }
-    }
-  }, [midiasParaExibir, selectedMidia, searchTerm]);
+  // --- ROTEAMENTO MANUAL ---
 
-  // ============================================================
-  // LÓGICA DE DECISÃO DE TELA (Login vs Cadastro vs App)
-  // ============================================================
-
-  // 1. Se NÃO tem usuário logado...
-  if (!user) {
-    if (isRegistering) {
-      // ...e clicou em "Criar Conta", mostra o Registro
-      return <Register onLoginClick={() => setIsRegistering(false)} />;
-    } else {
-      // ...caso contrário, mostra o Login normal
-      return <Login onRegisterClick={() => setIsRegistering(true)} />;
-    }
+  // 1. Reset de Senha
+  if (resetToken) {
+    return <ResetPassword token={resetToken} onLoginClick={clearUrl} />;
   }
 
-  // 2. Se TEM usuário, mostra o App Principal (Gerenciador)
+  // 2. Telas de Autenticação (Sem usuário)
+  if (!user) {
+    if (isForgot) {
+      return <ForgotPassword onBackToLogin={() => setIsForgot(false)} />;
+    }
+    if (isRegistering) {
+      return <Register onLoginClick={() => setIsRegistering(false)} />;
+    }
+    return (
+      <Login
+        onRegisterClick={() => setIsRegistering(true)}
+        onForgotPasswordClick={() => setIsForgot(true)}
+      />
+    );
+  }
+
+  // 3. App Principal
   return (
     <div className="app-container">
       <main className="main-content">
@@ -171,87 +172,39 @@ function App() {
           <div className="user-info">
             <div style={{ flex: 1, marginRight: '10px' }}>
               <p style={{ margin: 0, lineHeight: '1.3' }}>
-                Olá, <strong>{user?.nome?.split(' ')[0] || 'Usuário'}</strong>
+                Olá, <strong>{user?.nome?.split(' ')[0] || 'Usuário'}</strong>.
                 {' '}
-                <span style={{ fontSize: '0.9rem', color: '#666', display: 'inline-block'}}>
+                <span style={{ fontSize: '0.9rem', color: '#666', display: 'inline-block' }}>
                   bem-vindo de volta!
                 </span>
               </p>
             </div>
-            <button
-              onClick={logout}
-              className="btn-logout"
-            >
-              Sair
-            </button>
+            <button onClick={logout} className="btn-logout">Sair</button>
           </div>
         </div>
-
         <hr />
-
         <div className="search-container">
-          <input
-            type="text"
-            placeholder="Buscar na transcrição..."
-            className="search-bar"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+          <input type="text" placeholder="Buscar na transcrição..." className="search-bar"
+            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        <MediaForm
-          onMidiaAdded={handleMidiaAdded}
-          midiaToEdit={editingMidia}
-          setEditingMidia={setEditingMidia}
-        />
-
+        <MediaForm onMidiaAdded={handleMidiaAdded} midiaToEdit={editingMidia} setEditingMidia={setEditingMidia} />
         <hr />
-
         <h2>Minha Playlist</h2>
-        {midiasParaExibir.length === 0 && searchTerm !== '' && (
-           <p style={{ color: '#666', fontStyle: 'italic' }}>Nenhum resultado encontrado...</p>
-        )}
-
+        {midiasParaExibir.length === 0 && searchTerm !== '' && <p style={{ color: '#666', fontStyle: 'italic' }}>Nenhum resultado encontrado...</p>}
         <ul className="media-list">
           {midiasParaExibir.map(midia => {
             const videoID = getYouTubeID(midia.url_midia);
-            const thumbnailUrl = `https://img.youtube.com/vi/${videoID}/mqdefault.jpg`;
-
             return (
-              <li
-                key={midia.id}
-                className={`media-item ${selectedMidia?.id === midia.id ? 'active' : ''}`}
-                onClick={() => handleSelectMidia(midia)}
-              >
-                <img
-                  src={thumbnailUrl}
-                  alt={`Thumbnail para ${midia.titulo}`}
-                  className="media-item-thumbnail"
-                />
-
-                <div className="media-item-info">
-                  <strong>{midia.titulo}</strong>
-                </div>
-
+              <li key={midia.id} className={`media-item ${selectedMidia?.id === midia.id ? 'active' : ''}`} onClick={() => handleSelectMidia(midia)}>
+                <img src={`https://img.youtube.com/vi/${videoID}/mqdefault.jpg`} alt={midia.titulo} className="media-item-thumbnail" />
+                <div className="media-item-info"><strong>{midia.titulo}</strong></div>
                 <div className="media-item-actions">
-                  <button
-                    className={`btn-transcribe ${midia.texto_transcricao ? 'has-text' : ''}`}
-                    onClick={(e) => handleTranscribeClick(e, midia)}
-                    disabled={transcribingId === midia.id}
-                    title={midia.texto_transcricao ? "Ver Transcrição" : "Gerar Transcrição"}
-                  >
+                  <button className={`btn-transcribe ${midia.texto_transcricao ? 'has-text' : ''}`} onClick={(e) => handleTranscribeClick(e, midia)} disabled={transcribingId === midia.id}>
                      {transcribingId === midia.id ? '...' : (visibleTranscriptionId === midia.id ? 'Off' : (midia.texto_transcricao ? 'On' : 'Transcrever'))}
                   </button>
-
-                  <button className="btn-edit" onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(midia);
-                  }}>Editar</button>
-
-                  <button className="btn-delete" onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(midia.id);
-                  }}>Deletar</button>
+                  <button className="btn-edit" onClick={(e) => { e.stopPropagation(); handleEdit(midia); }}>Editar</button>
+                  <button className="btn-delete" onClick={(e) => { e.stopPropagation(); handleDelete(midia.id); }}>Apagar</button>
                 </div>
               </li>
             );

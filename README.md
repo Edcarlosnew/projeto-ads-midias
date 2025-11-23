@@ -10,48 +10,48 @@ A aplicação é um sistema robusto com ciclo completo de autenticação, segura
 
 ✨ Funcionalidades
 
-[Fase 1] Gestão Completa de Mídias (CRUD):
-*[x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.
-*[x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
-*[x] Atualizar (Update): Editar o título e a URL de uma mídia existente.
-*[x] Apagar (Delete): Remover uma mídia da lista.
+[Fase 1] Gestão Completa de Mídias (CRUD):  
+[x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.  
+[x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.  
+[x] Atualizar (Update): Editar o título e a URL de uma mídia existente.  
+[x] Apagar (Delete): Remover uma mídia da lista.  
 
 #
 
-[Fase 2] Interface Interativa Estilo YouTube:
-[x] Layout Profissional: Interface com player de vídeo principal e playlist na barra lateral.
-[x] Seleção de Mídia: Clicar num item da playlist carrega-o imediatamente no player.
-[x] Player de Vídeo Integrado: Reprodução de vídeos diretamente de URLs do YouTube.
-[x] Funcionalidade de Transcrição: Botão para solicitar a transcrição de uma mídia.
-[x] Exibição em Overlay: A transcrição aparece por cima do vídeo e pode ser mostrada/ocultada.
+[Fase 2] Interface Interativa Estilo YouTube:  
+[x] Layout Profissional: Interface com player de vídeo principal e playlist na barra lateral.  
+[x] Seleção de Mídia: Clicar num item da playlist carrega-o imediatamente no player.  
+[x] Player de Vídeo Integrado: Reprodução de vídeos diretamente de URLs do YouTube.  
+[x] Funcionalidade de Transcrição: Botão para solicitar a transcrição de uma mídia.  
+[x] Exibição em Overlay: A transcrição aparece por cima do vídeo e pode ser mostrada/ocultada.  
 
 #
 
-[Fase 3] Busca Avançada e Melhoria da Interface:
-[x] Busca na Transcrição (Client-Side): Implementada uma barra de busca no frontend que filtra a playlist em tempo real.
-[x] Simulação Dinâmica no Backend: O endpoint de transcrição fornece textos únicos baseados no título da mídia.
-[x] Melhoria de UI/UX (Thumbnails): A playlist agora exibe as thumbnails oficiais dos vídeos do YouTube.
-[x] UX de Busca: Lógica inteligente para limpar o player caso o vídeo selecionado seja filtrado.
+[Fase 3] Busca Avançada e Melhoria da Interface:  
+[x] Busca na Transcrição (Client-Side): Implementada uma barra de busca no frontend que filtra a playlist em tempo real.  
+[x] Simulação Dinâmica no Backend: O endpoint de transcrição fornece textos únicos baseados no título da mídia.  
+[x] Melhoria de UI/UX (Thumbnails): A playlist agora exibe as thumbnails oficiais dos vídeos do YouTube.  
+[x] UX de Busca: Lógica inteligente para limpar o player caso o vídeo selecionado seja filtrado.  
 
 #
 
-[Fase 4] Autenticação e Segurança:
-[x] Sistema de Login e Cadastro: Implementadas telas para registro de novos usuários e login de usuários existentes.
-[x] Segurança Avançada (Backend):
-    - Senhas criptografadas no banco de dados (Hash com Bcrypt).
-    - Geração de Tokens de Acesso (JWT) para sessões seguras.
-    - Middleware de Proteção ("O Porteiro"): Bloqueia acessos não autorizados à API.
-[x] Isolamento de Dados (Privacidade): O sistema agora é multi-usuário. Cada usuário vê apenas as suas próprias mídias e não tem acesso aos dados de outros.
-[x] Contexto de Autenticação (Frontend): Uso do React Context API para gerenciar a sessão do usuário globalmente.
-[x] UI Personalizada: O sistema reconhece o usuário logado e exibe uma saudação personalizada ("Olá, [Nome]").
+[Fase 4] Autenticação e Segurança:  
+[x] Sistema de Login e Cadastro: Implementadas telas para registro de novos usuários e login de usuários existentes.  
+[x] Segurança Avançada (Backend):  
+    - Senhas criptografadas no banco de dados (Hash com Bcrypt).  
+    - Geração de Tokens de Acesso (JWT) para sessões seguras.  
+    - Middleware de Proteção ("O Porteiro"): Bloqueia acessos não autorizados à API.  
+[x] Isolamento de Dados (Privacidade): O sistema agora é multi-usuário. Cada usuário vê apenas as suas próprias mídias e não tem acesso aos dados de outros.  
+[x] Contexto de Autenticação (Frontend): Uso do React Context API para gerenciar a sessão do usuário globalmente.  
+[x] UI Personalizada: O sistema reconhece o usuário logado e exibe uma saudação personalizada ("Olá, [Nome]").  
 
 #
 
-[Fase 5 - Extras e Funcionalidades de Produção] 🌟:
-[x] Recuperação de Senha: Envio de e-mail real (Gmail/Nodemailer) com token temporário para redefinição de senha.
-[x] Verificação de Conta: Bloqueio de login para contas não verificadas e envio de link de ativação por e-mail.
-[x] Painel Administrativo (Dashboard): Área restrita para administradores visualizarem estatísticas do sistema (Total de usuários, Ativos vs Pendentes).
-[x] Controle de Acesso (RBAC): Middleware específico para garantir que apenas usuários com permissão 'admin' acessem o Dashboard.
+[Fase 5 - Extras e Funcionalidades de Produção] 🌟:  
+[x] Recuperação de Senha: Envio de e-mail real (Gmail/Nodemailer) com token temporário para redefinição de senha.  
+[x] Verificação de Conta: Bloqueio de login para contas não verificadas e envio de link de ativação por e-mail.  
+[x] Painel Administrativo (Dashboard): Área restrita para administradores visualizarem estatísticas do sistema (Total de usuários, Ativos vs Pendentes).  
+[x] Controle de Acesso (RBAC): Middleware específico para garantir que apenas usuários com permissão 'admin' acessem o Dashboard.  
 
 ---
 #

@@ -11,10 +11,10 @@ A aplicação é um sistema robusto com ciclo completo de autenticação, segura
 ✨ Funcionalidades
 
 [Fase 1] Gestão Completa de Mídias (CRUD):
-[x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.
-[x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
-[x] Atualizar (Update): Editar o título e a URL de uma mídia existente.
-[x] Apagar (Delete): Remover uma mídia da lista.
+*[x] Listar (Read): Visualizar a lista completa de mídias cadastradas na playlist.
+*[x] Adicionar (Create): Inserir uma nova mídia através de um formulário interativo.
+*[x] Atualizar (Update): Editar o título e a URL de uma mídia existente.
+*[x] Apagar (Delete): Remover uma mídia da lista.
 
 #
 

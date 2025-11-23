@@ -9,6 +9,7 @@ import Login from "./Login.jsx";
 import Register from "./Register.jsx";
 import ForgotPassword from "./ForgotPassword.jsx";
 import ResetPassword from "./ResetPassword.jsx";
+import ActivateAccount from "./ActivateAccount.jsx"; // <-- NOVO IMPORT
 import MediaForm from './MediaForm';
 
 const getYouTubeID = (url) => {
@@ -23,7 +24,10 @@ function App() {
   // Estados de navegação
   const [isRegistering, setIsRegistering] = useState(false);
   const [isForgot, setIsForgot] = useState(false);
+
+  // Estados para rotas especiais (via URL)
   const [resetToken, setResetToken] = useState(null);
+  const [activationToken, setActivationToken] = useState(null); // <-- NOVO ESTADO
 
   // Estados do Gerenciador
   const [midias, setMidias] = useState([]);
@@ -33,21 +37,28 @@ function App() {
   const [visibleTranscriptionId, setVisibleTranscriptionId] = useState(null);
   const [transcribingId, setTranscribingId] = useState(null);
 
-  // --- EFEITO PARA DETECTAR LINK DE RESET NA URL ---
+  // --- EFEITO PARA DETECTAR LINKS NA URL ---
   useEffect(() => {
     const path = window.location.pathname;
+
+    // Rota de Reset de Senha
     if (path.startsWith('/reset-password/')) {
       const token = path.split('/reset-password/')[1];
-      if (token) {
-        setResetToken(token);
-      }
+      if (token) setResetToken(token);
+    }
+
+    // Rota de Ativação de Conta (NOVO)
+    if (path.startsWith('/activate/')) {
+      const token = path.split('/activate/')[1];
+      if (token) setActivationToken(token);
     }
   }, []);
 
-  // Função para limpar a URL
+  // Função para limpar a URL e voltar ao Login
   const clearUrl = () => {
     window.history.pushState({}, document.title, "/");
     setResetToken(null);
+    setActivationToken(null);
     setIsForgot(false);
     setIsRegistering(false);
   };
@@ -120,12 +131,17 @@ function App() {
 
   // --- ROTEAMENTO MANUAL ---
 
-  // 1. Reset de Senha
+  // 1. Tela de Ativação (Prioridade Alta)
+  if (activationToken) {
+    return <ActivateAccount token={activationToken} onLoginClick={clearUrl} />;
+  }
+
+  // 2. Tela de Reset de Senha
   if (resetToken) {
     return <ResetPassword token={resetToken} onLoginClick={clearUrl} />;
   }
 
-  // 2. Telas de Autenticação (Sem usuário)
+  // 3. Telas de Autenticação (Sem usuário)
   if (!user) {
     if (isForgot) {
       return <ForgotPassword onBackToLogin={() => setIsForgot(false)} />;
@@ -141,7 +157,7 @@ function App() {
     );
   }
 
-  // 3. App Principal
+  // 4. App Principal (Com usuário logado)
   return (
     <div className="app-container">
       <main className="main-content">

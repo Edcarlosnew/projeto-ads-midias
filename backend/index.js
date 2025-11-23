@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
-const crypto = require('crypto'); // Já vem com o Node.js (gera códigos aleatórios)
-const criarTransportador = require('./mailer'); // O nosso arquivo de e-mail
+const crypto = require('crypto');
+const criarTransportador = require('./mailer');
 const express = require('express');
 const db = require('./db');
 const cors = require('cors');
@@ -10,10 +10,8 @@ const OpenAI = require('openai');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// 1. IMPORTAÇÃO DO MIDDLEWARE
 const verificarToken = require('./authMiddleware');
 
-// Carrega as variáveis de ambiente
 require('dotenv').config();
 
 const app = express();
@@ -30,7 +28,7 @@ app.use(express.json());
 // 🔓 ROTAS PÚBLICAS (Autenticação)
 // ==================================================
 
-// ROTA DE CADASTRO
+// --- ROTA DE CADASTRO (ATUALIZADA COM E-MAIL DE ATIVAÇÃO) ---
 app.post('/auth/register', async (req, res) => {
   const { nome, email, senha } = req.body;
 
@@ -47,12 +45,35 @@ app.post('/auth/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const senhaHash = await bcrypt.hash(senha, salt);
 
+    // 1. Gerar Token de Ativação
+    const activationToken = crypto.randomBytes(20).toString('hex');
+
+    // 2. Salvar no banco como NÃO verificado (is_verified = 0)
     await db.query(
-      'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)',
-      [nome, email, senhaHash]
+      'INSERT INTO usuarios (nome, email, senha, is_verified, activation_token) VALUES (?, ?, ?, 0, ?)',
+      [nome, email, senhaHash, activationToken]
     );
 
-    res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
+    // 3. Enviar E-mail de Ativação
+    const transporter = await criarTransportador();
+    const info = await transporter.sendMail({
+      from: '"Gerenciador de Mídias" <noreply@gerenciador.com>',
+      to: email,
+      subject: 'Ative sua conta',
+      html: `
+        <h2>Bem-vindo, ${nome}!</h2>
+        <p>Por favor, clique no link abaixo para ativar sua conta:</p>
+        <a href="http://localhost:5173/activate/${activationToken}">ATIVAR MINHA CONTA</a>
+        <p>Se o link não funcionar, copie este token: <strong>${activationToken}</strong></p>
+      `,
+    });
+
+    console.log('Link de Ativação (Ethereal):', nodemailer.getTestMessageUrl(info));
+
+    res.status(201).json({
+      message: 'Cadastro realizado! Verifique seu e-mail para ativar a conta.',
+      testUrl: nodemailer.getTestMessageUrl(info) // Para facilitar o teste
+    });
 
   } catch (error) {
     console.error('Erro no cadastro:', error);
@@ -60,7 +81,7 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
-// ROTA DE LOGIN
+// --- ROTA DE LOGIN (ATUALIZADA COM BLOQUEIO DE CONTA) ---
 app.post('/auth/login', async (req, res) => {
   const { email, senha } = req.body;
 
@@ -75,6 +96,12 @@ app.post('/auth/login', async (req, res) => {
     }
 
     const usuario = usuarios[0];
+
+    // ▼▼▼ NOVO: Verificar se a conta está ativa ▼▼▼
+    // Nota: O MySQL retorna 0 ou 1. 0 é falso, 1 é verdadeiro.
+    if (usuario.is_verified === 0) {
+      return res.status(403).json({ error: 'Sua conta ainda não foi ativada. Verifique seu e-mail.' });
+    }
 
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
     if (!senhaCorreta) {
@@ -95,36 +122,55 @@ app.post('/auth/login', async (req, res) => {
   }
 });
 
-// --- ROTA DE ESQUECI A SENHA (Forgot Password) ---
+// --- ROTA NOVA: VERIFICAR E-MAIL (Confirmar Conta) ---
+app.post('/auth/verify_email', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Busca usuário com esse token de ativação
+    const [usuarios] = await db.query('SELECT * FROM usuarios WHERE activation_token = ?', [token]);
+
+    if (usuarios.length === 0) {
+      return res.status(400).json({ error: 'Token de ativação inválido.' });
+    }
+
+    const usuario = usuarios[0];
+
+    // Ativa a conta e limpa o token
+    await db.query(
+      'UPDATE usuarios SET is_verified = 1, activation_token = NULL WHERE id = ?',
+      [usuario.id]
+    );
+
+    res.json({ message: 'Conta ativada com sucesso! Agora você pode fazer login.' });
+
+  } catch (error) {
+    console.error('Erro na ativação:', error);
+    res.status(500).json({ error: 'Erro ao ativar conta.' });
+  }
+});
+
+// ROTA DE ESQUECI A SENHA
 app.post('/auth/forgot_password', async (req, res) => {
   const { email } = req.body;
 
   try {
-    // 1. Verificar se o email existe
     const [usuarios] = await db.query('SELECT id FROM usuarios WHERE email = ?', [email]);
     if (usuarios.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
     const usuario = usuarios[0];
 
-    // 2. Gerar Token e Data de Expiração (1 hora)
-    // Gera 20 bytes aleatórios e converte para texto (hexadecimal)
     const token = crypto.randomBytes(20).toString('hex');
-
-    // Pega a hora de agora e soma 1 hora (3600000 milissegundos)
-    // O formato para MySQL DATETIME é 'YYYY-MM-DD HH:MM:SS'
     const agora = new Date();
     agora.setHours(agora.getHours() + 1);
 
-    // 3. Salvar no Banco de Dados
     await db.query(
       'UPDATE usuarios SET reset_token = ?, reset_expires = ? WHERE id = ?',
       [token, agora, usuario.id]
     );
 
-    // 4. Enviar o E-mail (Usando Ethereal para teste)
     const transporter = await criarTransportador();
-
     const info = await transporter.sendMail({
       from: '"Gerenciador de Mídias" <noreply@gerenciador.com>',
       to: email,
@@ -139,7 +185,6 @@ app.post('/auth/forgot_password', async (req, res) => {
 
     console.log('Link de teste do E-mail:', nodemailer.getTestMessageUrl(info));
 
-    // Retornamos a URL de teste para você ver o email no navegador sem configurar nada
     res.json({
       message: 'E-mail de recuperação enviado!',
       testUrl: nodemailer.getTestMessageUrl(info)
@@ -151,13 +196,11 @@ app.post('/auth/forgot_password', async (req, res) => {
   }
 });
 
-// --- ROTA DE REDEFINIR SENHA (Reset Password) ---
+// ROTA DE REDEFINIR SENHA
 app.post('/auth/reset_password', async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
-    // 1. Procurar usuário com esse token e que o token ainda não tenha expirado
-    // O 'NOW()' é a hora atual do banco de dados
     const [usuarios] = await db.query(
       'SELECT * FROM usuarios WHERE reset_token = ? AND reset_expires > NOW()',
       [token]
@@ -168,12 +211,9 @@ app.post('/auth/reset_password', async (req, res) => {
     }
 
     const usuario = usuarios[0];
-
-    // 2. Encriptar a nova senha
     const salt = await bcrypt.genSalt(10);
     const senhaHash = await bcrypt.hash(newPassword, salt);
 
-    // 3. Atualizar a senha e limpar o token (para não ser usado de novo)
     await db.query(
       'UPDATE usuarios SET senha = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?',
       [senhaHash, usuario.id]
@@ -191,18 +231,12 @@ app.post('/auth/reset_password', async (req, res) => {
 // 🔒 ROTAS PROTEGIDAS (Mídias)
 // ==================================================
 
-// 2. ATIVAÇÃO DO SEGURANÇA (CRUCIAL!)
-// Isto protege todas as rotas abaixo. Sem isso, o login não serve para nada.
 app.use('/midias', verificarToken);
-
 
 // ROTA GET (Read)
 app.get('/midias', async (req, res) => {
   try {
-    // 3. USO DO ID DO TOKEN (CRUCIAL!)
-    // Pega o ID do usuário que fez login, em vez do ID 1 fixo.
     const usuarioId = req.usuario.id;
-
     const [midias] = await db.query('SELECT * FROM midias WHERE usuario_id = ?', [usuarioId]);
     res.json(midias);
   } catch (error) {
@@ -214,8 +248,6 @@ app.get('/midias', async (req, res) => {
 // ROTA POST (Create)
 app.post('/midias', async (req, res) => {
   const { titulo, url_midia } = req.body;
-
-  // Usa o ID do usuário logado para criar a mídia
   const usuarioId = req.usuario.id;
 
   try {
@@ -294,6 +326,7 @@ app.post('/midias/:id/transcrever', async (req, res) => {
       default:
         textoTranscribed = `Texto genérico para ${titulo}. A entrega está quase pronta. Simulação de custos.`;
     }
+
     await db.query(
       'UPDATE midias SET texto_transcricao = ? WHERE id = ?',
       [textoTranscribed, id]

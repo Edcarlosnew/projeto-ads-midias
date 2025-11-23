@@ -1,10 +1,9 @@
-
 🚀 Projeto Gerenciador de Mídias (ADS)
 
 Este é um projeto full-stack desenvolvido para a disciplina de Análise e Desenvolvimento de Sistemas. A aplicação permite gerenciar uma playlist de mídias, reproduzir vídeos e obter transcrições de áudio.
 
-✅ Status Atual do Projeto: Fase 4 Concluída
-A aplicação evoluiu para um sistema seguro e robusto. Além das funcionalidades de mídia, agora contamos com um sistema completo de autenticação, permitindo que múltiplos usuários criem contas e gerenciem suas próprias playlists privadas.
+✅ Status Atual do Projeto: Concluído (Versão Final)
+A aplicação é um sistema robusto com ciclo completo de autenticação, segurança de dados, recuperação de conta por e-mail e painel administrativo.
 
 ---
 #
@@ -36,7 +35,7 @@ A aplicação evoluiu para um sistema seguro e robusto. Além das funcionalidade
 
 #
 
-[Fase 4] Autenticação e Segurança (Novidade!):
+[Fase 4] Autenticação e Segurança:
 [x] Sistema de Login e Cadastro: Implementadas telas para registro de novos usuários e login de usuários existentes.
 [x] Segurança Avançada (Backend):
     - Senhas criptografadas no banco de dados (Hash com Bcrypt).
@@ -48,58 +47,60 @@ A aplicação evoluiu para um sistema seguro e robusto. Além das funcionalidade
 
 #
 
+[Fase 5 - Extras e Funcionalidades de Produção] 🌟:
+[x] Recuperação de Senha: Envio de e-mail real (Gmail/Nodemailer) com token temporário para redefinição de senha.
+[x] Verificação de Conta: Bloqueio de login para contas não verificadas e envio de link de ativação por e-mail.
+[x] Painel Administrativo (Dashboard): Área restrita para administradores visualizarem estatísticas do sistema (Total de usuários, Ativos vs Pendentes).
+[x] Controle de Acesso (RBAC): Middleware específico para garantir que apenas usuários com permissão 'admin' acessem o Dashboard.
+
+---
+#
+
 🛠️ Tecnologias Utilizadas
 O projeto foi construído utilizando uma stack moderna e robusta de JavaScript.
+
+### Backend
 #
-Backend
-#
-Ambiente de Execução: Node.js
-
-Framework: Express.js para a construção da API RESTful.
-
-Banco de Dados: MySQL
-
-#
-
-Dependências:
-
-
-mysql2: Driver para a conexão com o banco de dados.
-
-cors: Para habilitar a comunicação entre o frontend e o backend.
-
-dotenv: Para gerenciar as variáveis de ambiente de forma segura.
-
-nodemon: Para reiniciar o servidor automaticamente durante o desenvolvimento.
+* **Ambiente de Execução:** Node.js
+* **Framework:** Express.js para a construção da API RESTful.
+* **Banco de Dados:** MySQL
+* **Dependências Principais:**
+    * `mysql2`: Driver para a conexão com o banco de dados.
+    * `cors`: Para habilitar a comunicação entre o frontend e o backend.
+    * `dotenv`: Para gerenciar as variáveis de ambiente de forma segura.
+    * `bcryptjs`: Para criptografia de senhas.
+    * `jsonwebtoken`: Para geração e validação de tokens de sessão.
+    * `nodemailer`: Para envio de e-mails de recuperação e ativação.
 
 #
 
-Frontend
-#
-Biblioteca: React para a construção da interface de usuário.
-
-Ferramenta de Build: Vite para um desenvolvimento rápido e otimizado.
-
-Cliente HTTP: Axios para fazer a comunicação com a API do backend.
-
-Player de Vídeo: react-lite-youtube-embed para uma reprodução leve e eficiente.
-
-Estilização: CSS puro com foco em responsividade (Flexbox e CSS Grid).
+### Frontend
+* **Biblioteca:** React para a construção da interface de usuário.
+* **Ferramenta de Build:** Vite para um desenvolvimento rápido e otimizado.
+* **Cliente HTTP:** Axios para fazer a comunicação com a API do backend.
+* **Player de Vídeo:** `react-lite-youtube-embed` para uma reprodução leve e eficiente.
+* **Autenticação:** `jwt-decode` para ler dados do usuário no cliente.
+* **Estilização:** CSS puro com foco em responsividade (Flexbox e CSS Grid).
 
 #
+
+---
 
 ⚙️ Guia de Instalação e Execução Local
-#
-Esta seção é destinada a outros desenvolvedores (incluindo o avaliador do projeto) que desejam clonar e executar a aplicação em sua própria máquina.
-#
-Pré-requisitos
-Node.js (versão 18 ou superior)
-MySQL Server
 
+Esta seção é destinada a outros desenvolvedores que desejam clonar e executar a aplicação em sua própria máquina.
 
-1. Clonar o Repositório
+### Pré-requisitos
+* Node.js (versão 18 ou superior)
+* MySQL Server
+
+#
+
+### 1. Clonar o Repositório
+```bash
 git clone [https://github.com/Edcarlosnew/projeto-ads-midias.git](https://github.com/Edcarlosnew/projeto-ads-midias.git)
 cd projeto-ads-midias
+
 
 2. Configuração do Backend
 Primeiro, configure e inicie o servidor do backend.
@@ -130,7 +131,7 @@ npm install
 # 3. Inicie o servidor de desenvolvimento
 npm run dev
 
-A aplicação estará disponível em http://localhost:5173 (ou outra porta indicada pelo Vite).
+A aplicação estará disponível em http://localhost:5173 ou http://localhost:3001 (ou outra porta indicada pelo Vite).
 
 API Endpoints
 A API do backend possui os seguintes endpoints para a gestão de mídias:
@@ -155,3 +156,13 @@ Entrega 3: Implementação de busca avançada no conteúdo transcrito.
 Entrega 4: Sistema completo de autenticação de usuários (Cadastro e Login).
 
 Desenvolvido por Edcarlos Almeida.
+
+
+
+
+
+
+
+
+
+
